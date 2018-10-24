@@ -19,8 +19,7 @@ import util.Util;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static java.io.File.separator;
 
@@ -37,16 +36,18 @@ public class ContinueCreatePDF {
     private File ftlJsonDataFile;
     private File ftlFile;
     private File htmlFile;
-    private File cssFile;
+    private List<File> cssFileList;
     private PDFResourceInfo pdfResourceInfo;
+    private String nowUseCssPath;
 
     public ContinueCreatePDF(PDFResourceInfo pdfResourceInfo) {
         this.pdfResourceInfo = pdfResourceInfo;
         ftlJsonDataFile = new File(pdfResourceInfo.getFtlKeyValJsonPath());
         ftlFile = new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName());
         htmlFile = new File(pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html");
-        File tempCssFile = new File(ftlFile.getParentFile().getAbsolutePath() + File.separator + Util.getFileNameWithoutExtension(ftlFile.getName()).toLowerCase() + "_style.ftl");
-        if(tempCssFile.exists()) cssFile = tempCssFile;
+        if (updateCssPath()) {
+            cssFileList = getCssFileList(nowUseCssPath);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -59,6 +60,13 @@ public class ContinueCreatePDF {
                 keyVal = new FreeMarkerKeyValue();
                 Objects.requireNonNull(pdfResourceInfo.readJsonKeyValue()).forEach(keyVal::put);
                 pdfResourceInfo.setKeyVal(keyVal);
+                if (updateCssPath()) {
+                    List<File> newCssFileList = getCssFileList(nowUseCssPath);
+                    FileManager manager = FileManager.getInstance();
+                    manager.removeListener(cssFileList);
+                    manager.addListener(newCssFileList, fileListener);
+                    cssFileList = getCssFileList(nowUseCssPath);
+                }
             } else {
                 createHTML(keyVal);
             }
@@ -68,11 +76,11 @@ public class ContinueCreatePDF {
 
     @SuppressWarnings("unchecked")
     public void createPDFWhenFTLChange() {
-        FileManager instance = FileManager.getInstance();
-        instance.addListener(ftlFile, fileListener);
-        instance.addListener(ftlJsonDataFile, fileListener);
-        if (cssFile != null){
-            instance.addListener(cssFile, fileListener);
+        FileManager manager = FileManager.getInstance();
+        manager.addListener(ftlFile, fileListener);
+        manager.addListener(ftlJsonDataFile, fileListener);
+        if (cssFileList != null && cssFileList.size() != 0) {
+            manager.addListener(cssFileList, fileListener);
         }
         FreeMarkerKeyValue keyVal = pdfResourceInfo.getKeyVal();
         createHTML(keyVal);
@@ -111,5 +119,22 @@ public class ContinueCreatePDF {
         } catch (DocumentException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean updateCssPath() {
+        Object cssPath = pdfResourceInfo.getKeyVal().get("cssPath");
+        if (cssPath != null && !cssPath.equals(nowUseCssPath)) {
+            nowUseCssPath = Util.getFileFormFileURI(cssPath.toString()).getAbsolutePath();
+            return true;
+        }
+        return false;
+    }
+
+    private List<File> getCssFileList(String cssPath) {
+        File[] cssFiles = new File(cssPath).listFiles(File::isFile);
+        if (cssFiles != null) {
+            return cssFileList = Arrays.asList(cssFiles);
+        }
+        return new ArrayList<>();
     }
 }

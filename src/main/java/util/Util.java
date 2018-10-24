@@ -68,6 +68,10 @@ public class Util {
         return fileName.contains(".") ? fileName.split("\\.")[0] : fileName;
     }
 
+    public static File getFileFormFileURI(String uri){
+        return new File(uri.replaceFirst("file:///",""));
+    }
+
     public static void sleep(long milliseconds) {
         try {
             TimeUnit.MILLISECONDS.sleep(milliseconds);

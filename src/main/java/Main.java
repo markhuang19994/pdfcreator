@@ -34,6 +34,7 @@ public class Main {
             if (args[i].equalsIgnoreCase("-r")) {
                 if (isIndexNotOutOfBound(args, i + 1)) {
                     pdfResourceInfo.setResourcesPath(new File(args[i + 1]).getAbsolutePath() + File.separator);
+                    pdfResourceInfo.initResources();
                 } else {
                     return;
                 }

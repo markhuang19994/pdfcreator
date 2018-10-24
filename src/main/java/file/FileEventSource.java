@@ -31,6 +31,21 @@ class FileEventSource {
         lastModifyTimeMap.put(file, file.lastModified());
     }
 
+    void addFileListener(List<File> files, FileListener fileListener) {
+        if (files == null) return;
+        files.forEach(file -> addFileListener(file, fileListener));
+    }
+
+    void removeFileListener(File file) {
+        listenerMap.remove(file);
+        lastModifyTimeMap.remove(file);
+    }
+
+    void removeFileListener(List<File> files) {
+        if (files == null) return;
+        files.forEach(this::removeFileListener);
+    }
+
     private void notifyChangeEvent(File file) {
         FileEvent fileEvent = new FileEvent(file);
         listenerMap.get(file).onChange(fileEvent);

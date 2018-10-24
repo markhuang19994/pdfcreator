@@ -39,16 +39,7 @@ public class PDFResourceInfo {
             e.printStackTrace();
         }
         resourcesPath = resPath;
-        resultHtmlPath = resourcesPath + "result" + separator + "html" + separator;
-        resultPdfPath = resourcesPath + "result" + separator + "temp" + separator;
-        ftlDirPath = resourcesPath + "result" + separator + "ftl" + separator;
-        htmlSourcePath = resourcesPath + "result" + separator + "source_html" + separator;
-        ftlFileName = "NT99.ftl";
-        ftlKeyValJsonPath = resourcesPath + "data" + separator + "data.json";
-        JSONObject jsonKeyValue = readJsonKeyValue();
-        if (jsonKeyValue != null) {
-            jsonKeyValue.forEach(keyVal::put);
-        }
+        initResources();
     }
 
     public static PDFResourceInfo getInstance() {
@@ -57,6 +48,19 @@ public class PDFResourceInfo {
 
     public JSONObject readJsonKeyValue() {
         return JSONObject.fromObject(Util.readeFileToString(new File(ftlKeyValJsonPath)));
+    }
+
+    public void initResources(){
+        resultHtmlPath = resourcesPath + "result" + separator + "html" + separator;
+        resultPdfPath = resourcesPath + "result" + separator + "temp" + separator;
+        ftlDirPath = resourcesPath + "result" + separator + "ftl" + separator;
+        htmlSourcePath = resourcesPath + "result" + separator + "source_html" + separator;
+        ftlKeyValJsonPath = resourcesPath + "data" + separator + "data.json";
+        JSONObject jsonKeyValue = readJsonKeyValue();
+        if (jsonKeyValue != null) {
+            jsonKeyValue.forEach(keyVal::put);
+        }
+        ftlFileName = "NT99.ftl";
     }
 
     public String getResourcesPath() {

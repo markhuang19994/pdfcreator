@@ -1,6 +1,7 @@
 package file;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @author MarkHuang
@@ -16,13 +17,24 @@ public class FileManager {
     private FileManager() {
     }
 
-
     public static FileManager getInstance() {
         return fileManager;
     }
 
     public void addListener(File file, FileListener listener) {
         fileEventSource.addFileListener(file, listener);
+    }
+
+    public void addListener(List<File> files, FileListener listener) {
+        fileEventSource.addFileListener(files, listener);
+    }
+
+    public void removeListener(File file) {
+        fileEventSource.removeFileListener(file);
+    }
+
+    public void removeListener(List<File> files) {
+        fileEventSource.removeFileListener(files);
     }
 
     public void getFileInProject(){}
