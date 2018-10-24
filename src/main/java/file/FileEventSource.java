@@ -1,9 +1,13 @@
 package file;
 
-import util.Util;
-
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author MarkHuang
@@ -56,10 +60,10 @@ class FileEventSource {
         listenerMap.get(file).onDestroy(fileEvent);
     }
 
-    public void monitorFile() {
-        while (true) {
-            Util.sleep(50);
-            if (listenerMap.size() == 0) continue;
+    private void monitorFile() {
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
+        service.scheduleAtFixedRate(() -> {
+            if (listenerMap.size() == 0) return;
             Set<File> files = listenerMap.keySet();
             for (File file : files) {
                 long lastModified = file.lastModified();
@@ -71,7 +75,7 @@ class FileEventSource {
                     notifyDestroyEvent(file);
                 }
             }
-        }
+        }, 0, 20, TimeUnit.MILLISECONDS);
     }
 
 }

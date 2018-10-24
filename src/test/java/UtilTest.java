@@ -18,11 +18,13 @@ import java.io.File;
 public class UtilTest {
     private PDFResourceInfo instance = PDFResourceInfo.getInstance();
 
-//    @Test
-//    public void readeFileToStringTest(){
-//        String s = Util.readeFileToString(new File(instance.getHtmlSourcePath() + "source.html"));
-//        System.out.println(System.getProperty("user.dir"));
-//    }
+    @Test
+    public void readeFileToStringTest() {
+        long l = System.currentTimeMillis();
+        File file = Util.searchFileInDirectory(new File("C:\\Users"), "UPL_NTB.iml");
+        System.out.println(file);
+        System.out.println(System.currentTimeMillis() - l);
+    }
 
 
 //    @Test
