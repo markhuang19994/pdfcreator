@@ -1,9 +1,8 @@
 package util;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @author MarkHuang
@@ -35,41 +34,12 @@ public class Util {
         }
     }
 
-    public static File searchFileInDirectory(File dir, String fileName) {
-        List<File> fileList = new ArrayList<>();
-        fileList.add(dir);
-        return searchFileInDirectory(fileList, fileName);
-    }
-
-    private static File searchFileInDirectory(List<File> dirList, String fileName) {
-        List<File> tempFileList = new ArrayList<>();
-        boolean lastFile = true;
-        for (File outerDir : dirList) {
-            File[] innerDir = outerDir.listFiles();
-            if (innerDir == null) continue;
-            for (File innerFile : innerDir) {
-                if (innerFile.isFile()) {
-                    if (fileName.equals(innerFile.getName())) {
-                        return innerFile;
-                    }
-                } else if (innerFile.isDirectory()) {
-                    File[] inInnerFiles = innerFile.listFiles();
-                    if (inInnerFiles != null && inInnerFiles.length != 0) lastFile = false;
-                    tempFileList.add(innerFile);
-                }
-            }
-        }
-        dirList = tempFileList;
-        if (lastFile) return null;
-        return searchFileInDirectory(dirList, fileName);
-    }
-
     public static String getFileNameWithoutExtension(String fileName) {
         return fileName.contains(".") ? fileName.split("\\.")[0] : fileName;
     }
 
-    public static File getFileFormFileURI(String uri){
-        return new File(uri.replaceFirst("file:///",""));
+    public static File getFileFormFileURI(String uri) {
+        return new File(uri.replaceFirst("file:///", ""));
     }
 
     public static void sleep(long milliseconds) {
@@ -78,5 +48,61 @@ public class Util {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private static List<File> getAllDirFiles(File dir, String fileName) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            return Arrays.asList(files);
+        }
+        return null;
+    }
+
+    private static Map<String, String> cacheFilePath = new HashMap<>(3000);
+
+    public static File searchFileInDirectory(File dir, String fileName) {
+        String cachePath = cacheFilePath.get(fileName);
+        if (cachePath != null) return new File(cachePath);
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        List<Future<?>> futures = new ArrayList<Future<?>>();
+        BlockingDeque<File> deque = new LinkedBlockingDeque<>();
+        List<File> result = new ArrayList<>();
+        deque.push(dir);
+        while (result.size() == 0 && (!deque.isEmpty() || !isAllExecDone(futures))) {
+            File innerDir = fileDeqPollLast(deque);
+            if (innerDir == null) continue;
+            Future<?> future = executor.submit(() -> {
+                List<File> files = getAllDirFiles(innerDir, fileName);
+                if (files == null) return;
+                for (File file : files) {
+                    if (!file.exists()) continue;
+                    if (file.isFile() && file.getName().equals(fileName)) {
+                        cacheFilePath.put(file.getName(), file.getAbsolutePath());
+                        result.add(file);
+                    } else if (file.isDirectory()) {
+                        deque.push(file);
+                    }
+                }
+            });
+            futures.add(future);
+        }
+        executor.shutdown();
+        return result.size() == 0 ? null : result.get(0);
+    }
+
+    private static boolean isAllExecDone(List<Future<?>> futures){
+        for (Future<?> future : futures) {
+            if (!future.isDone()) return false;
+        }
+        return true;
+    }
+
+    private static File fileDeqPollLast(BlockingDeque<File> deque) {
+        try {
+            return deque.pollLast(100,TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
