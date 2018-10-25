@@ -16,5 +16,12 @@
    >image資源必須放在images資料夾底下，source.html內需使用&lt;img src='./images/xxx.jpg'/&gt;   
    >css資源必須放在css資料夾底下，source.html內需使用&lt;link href='./css/ooo.css'/&gt;   
    >source.html轉換後input checkbox會變成圖片資源，相關圖片放置在本專案"others"資料夾中    
-   >data.json中必須加入cssPath指定css目錄與imagePath指定image目錄
+   >data.json中必須加入cssPath指定css目錄與imagePath指定image目錄    
+   >☆本專案需搭配支援刷新的PDF閱讀器使用    
+   >>windows:https://www.sumatrapdfreader.org/download-free-pdf-viewer.html/    
+   >>mac:https://skim-app.sourceforge.io/    
+   >>mac skim刷新相關設定:    
+   >>>https://skim-app.sourceforge.io/manual/SkimHelp_14.html    
+   >>>https://tex.stackexchange.com/questions/43057/macosx-pdf-viewer-automatic-reload-on-file-modification
+   
    
