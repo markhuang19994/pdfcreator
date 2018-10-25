@@ -47,7 +47,7 @@ public class PDFResourceInfo {
     }
 
     public JSONObject readJsonKeyValue() {
-        return JSONObject.fromObject(Util.readeFileToString(new File(ftlKeyValJsonPath)));
+        return JSONObject.fromObject(Util.readeFile(new File(ftlKeyValJsonPath)));
     }
 
     public void initResources(){

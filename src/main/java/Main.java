@@ -96,7 +96,7 @@ public class Main {
             LOCK.lock();
             STOP.await();
         } catch (InterruptedException e) {
-            System.out.println(" service stopped, interrupted by other thread!");
+            System.out.println("service stopped, interrupted by other thread!");
             e.printStackTrace();
         } finally {
             LOCK.unlock();

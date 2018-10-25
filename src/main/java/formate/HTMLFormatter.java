@@ -33,7 +33,7 @@ public class HTMLFormatter {
      */
     public void htmlToFtlFormat() {
         //讀取檔案
-        String source = Util.readeFileToString(new File(htmlSourcePath + "source.html"));
+        String source = Util.readeFile(new File(htmlSourcePath + "source.html"));
         //移除註解
         source = source.replaceAll("<!--((.|\n|\r|\t)*?)-->", "");
         //移除script標籤
@@ -63,7 +63,7 @@ public class HTMLFormatter {
         source = source.substring(0, headEndIndex) + sb.toString() + source.substring(headEndIndex);
 
         //輸出檔案
-        Util.writeStringToFile(new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName()), source);
+        Util.writeFile(new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName()), source);
         System.err.println("HTML to FTL 轉換完成!");
     }
 
@@ -75,7 +75,7 @@ public class HTMLFormatter {
         sb.append("\n<style type=\"text/css\">");
         for (File file : cssFileList) {
             sb.append("\n");
-            sb.append(Util.readeFileToString(file));
+            sb.append(Util.readeFile(file));
         }
         sb.append("\n</style>");
         sb.append("\n</#macro>");
