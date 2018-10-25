@@ -27,6 +27,7 @@ public class FreeMarkerTemplate {
             cfg.setDirectoryForTemplateLoading(new File(dir));
             return cfg.getTemplate(name);
         } catch (IOException e) {
+            //避免多線程產生造成的FileNotFoundException
             if (count <= 20 && e instanceof FileNotFoundException) {
                 Util.sleep(150);
                 return getTemplate(dir, name, ++count);

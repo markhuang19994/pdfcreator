@@ -57,20 +57,27 @@ public class HTMLFormatter {
         sb.append("\n\t<#import \"FunctionUtil.ftl\" as func/>");
         sb.append("\n\t<style type=\"text/css\">");
         sb.append("\n\t\t@page {");
-        sb.append("\n\t\t\tsize: 1080px 1510px;");
+        sb.append("\n\t\t\tsize: 1080px 1510px;");//偽A4，使用者可以根據需要自行調整ftl
+        sb.append("\n\t\t\tmargin: 0;");//消除預設的margin
         sb.append("\n\t\t}");
         sb.append("\n\t</style>\n");
         source = source.substring(0, headEndIndex) + sb.toString() + source.substring(headEndIndex);
 
-        //輸出檔案
+        //輸出ftl檔案
         Util.writeFile(new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName()), source);
         System.err.println("HTML to FTL 轉換完成!");
     }
 
+    /**
+     * 把所有的css內容合併，並產出合併ftl的字串
+     * @param cssFileList css檔案
+     * @param cssFtlName  合併檔的名稱
+     * @return String
+     */
     @Deprecated
-    private String generateCssFtlString(List<File> cssFileList) {
+    private String generateCssFtlString(List<File> cssFileList,String cssFtlName) {
         StringBuilder sb = new StringBuilder(15000);
-//        sb.append("<#macro ").append(cssFtlName).append(">");
+        sb.append("<#macro ").append(cssFtlName).append(">");
         sb.append("\n<#assign imagePath = imgPath!>");
         sb.append("\n<style type=\"text/css\">");
         for (File file : cssFileList) {

@@ -1,7 +1,5 @@
 package file;
 
-import file.FileEvent;
-
 import java.util.EventListener;
 
 /**
@@ -16,7 +14,7 @@ public interface FileListener extends EventListener {
 
     }
 
-    default void onDestroy(FileEvent event) {
+    default void afterDeleted(FileEvent event) {
 
     }
 }

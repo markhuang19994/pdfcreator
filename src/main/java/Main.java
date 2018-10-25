@@ -91,7 +91,7 @@ public class Main {
     private static final ReentrantLock LOCK = new ReentrantLock();
     private static final Condition STOP = LOCK.newCondition();
 
-    public static void notStop(){
+    private static void notStop(){
         try {
             LOCK.lock();
             STOP.await();

@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * 本類別主要用於紀錄ftl轉換html時使用過的key
  * @author MarkHuang
  * @version <ul>
  * <li>2018/3/2, MarkHuang,new
