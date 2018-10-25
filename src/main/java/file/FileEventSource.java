@@ -55,25 +55,33 @@ class FileEventSource {
         listenerMap.get(file).onChange(fileEvent);
     }
 
-    private void notifyDestroyEvent(File file) {
+    private void notifyDeleteEvent(File file) {
         FileEvent fileEvent = new FileEvent(file);
-        listenerMap.get(file).onDestroy(fileEvent);
+        listenerMap.get(file).afterDeleted(fileEvent);
     }
 
+    /**
+     * 每20毫秒監控檔案的變化
+     */
     private void monitorFile() {
         ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
         service.scheduleAtFixedRate(() -> {
-            if (listenerMap.size() == 0) return;
-            Set<File> files = listenerMap.keySet();
-            for (File file : files) {
-                long lastModified = file.lastModified();
-                if (lastModified != lastModifyTimeMap.get(file)) {
-                    notifyChangeEvent(file);
-                    lastModifyTimeMap.put(file, lastModified);
+            try {
+                if (listenerMap.size() == 0) return;
+                Set<File> files = listenerMap.keySet();
+                for (File file : files) {
+                    long lastModified = file.lastModified();
+                    if (lastModified != lastModifyTimeMap.get(file)) {
+                        lastModifyTimeMap.put(file, lastModified);
+                        notifyChangeEvent(file);
+                    }
+                    if (!file.exists()) {
+                        notifyDeleteEvent(file);
+                    }
                 }
-                if (!file.exists()) {
-                    notifyDestroyEvent(file);
-                }
+            } catch (Exception e) {
+                e.printStackTrace();
+//                service.shutdownNow();
             }
         }, 0, 20, TimeUnit.MILLISECONDS);
     }
