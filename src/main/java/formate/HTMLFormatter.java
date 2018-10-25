@@ -54,7 +54,7 @@ public class HTMLFormatter {
         StringBuilder sb = new StringBuilder(15000);
         int titleEndIndex = source.indexOf("</title>");
         int headEndIndex = source.indexOf("</head>");
-        sb.append("\n\t<#import \"FunctionUtil.ftl\" as func/>");
+//        sb.append("\n\t<#import \"FunctionUtil.ftl\" as func/>");
         sb.append("\n\t<style type=\"text/css\">");
         sb.append("\n\t\t@page {");
         sb.append("\n\t\t\tsize: 1080px 1510px;");//偽A4，使用者可以根據需要自行調整ftl
