@@ -61,7 +61,7 @@ public class ContinueCreatePDF {
                     FileManager manager = FileManager.getInstance();
                     manager.removeListener(cssFileList);
                     manager.addListener(newCssFileList, fileListener);
-                    cssFileList = getCssFileList(nowUseCssPath);
+                    cssFileList = newCssFileList;
                 }
             } else {
                 createHTML(keyVal);
@@ -119,7 +119,8 @@ public class ContinueCreatePDF {
 
     private boolean updateCssPath() {
         Object cssPath = pdfResourceInfo.getKeyVal().get("cssPath");
-        if (cssPath != null && !cssPath.equals(nowUseCssPath)) {
+        cssPath = cssPath == null ? pdfResourceInfo.getHtmlSourcePath() + separator + "css" : cssPath;
+        if (!cssPath.equals(nowUseCssPath)) {
             nowUseCssPath = Util.getFileFormFileURI(cssPath.toString()).getAbsolutePath();
             return true;
         }
@@ -129,7 +130,7 @@ public class ContinueCreatePDF {
     private List<File> getCssFileList(String cssPath) {
         File[] cssFiles = new File(cssPath).listFiles(File::isFile);
         if (cssFiles != null) {
-            return cssFileList = Arrays.asList(cssFiles);
+            return Arrays.asList(cssFiles);
         }
         return new ArrayList<>();
     }

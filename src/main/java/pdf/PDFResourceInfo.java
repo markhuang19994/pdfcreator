@@ -17,7 +17,7 @@ import static java.io.File.separator;
  * @since 2018/10/22
  */
 public class PDFResourceInfo {
-    private static PDFResourceInfo pdfResourceInfo = new PDFResourceInfo();
+    private static PDFResourceInfo pdfResourceInfo;
     private String resourcesPath;
     private String htmlSourcePath;
     private String resultHtmlPath;
@@ -32,7 +32,6 @@ public class PDFResourceInfo {
         try {
             resPath = new File(ContinueCreatePDF.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile().getPath() + separator + "resources" + separator;
             if (!new File(resPath).exists()) {
-//                resPath = System.getProperty("user.dir") + separator + "src" + separator + "main" + separator + "resources" + separator;
                 resPath = System.getProperty("user.home") + separator + "Desktop" + separator + "resources" + separator;
             }
         } catch (URISyntaxException e) {
@@ -43,14 +42,29 @@ public class PDFResourceInfo {
     }
 
     public static PDFResourceInfo getInstance() {
+        if (pdfResourceInfo == null) pdfResourceInfo = new PDFResourceInfo();
         return pdfResourceInfo;
     }
 
     public JSONObject readJsonKeyValue() {
-        return JSONObject.fromObject(Util.readeFile(new File(ftlKeyValJsonPath)));
+        File jsonFile = new File(ftlKeyValJsonPath);
+        JSONObject jsonObj = jsonFile.exists() ? JSONObject.fromObject(Util.readeFile(jsonFile)) : new JSONObject();
+        return setDefaultCssAndImagesPath(jsonObj);
     }
 
-    public void initResources(){
+    private JSONObject setDefaultCssAndImagesPath(JSONObject jsonObj) {
+        Object cssPath = jsonObj.get("cssPath");
+        if (cssPath == null) {
+            jsonObj.element("cssPath", "file:///" + htmlSourcePath.replaceAll("\\\\", "/") + "css");
+        }
+        Object imagePath = jsonObj.get("imgPath");
+        if (imagePath == null) {
+            jsonObj.element("imgPath", "file:///" + htmlSourcePath.replaceAll("\\\\", "/") + "images");
+        }
+        return jsonObj;
+    }
+
+    public void initResources() {
         resultHtmlPath = resourcesPath + "result" + separator + "html" + separator;
         resultPdfPath = resourcesPath + "result" + separator + "temp" + separator;
         ftlDirPath = resourcesPath + "result" + separator + "ftl" + separator;
