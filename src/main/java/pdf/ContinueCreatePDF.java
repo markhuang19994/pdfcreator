@@ -9,8 +9,6 @@ import freemarker.FreeMarkerKeyValue;
 import freemarker.FreeMarkerTemplate;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextFontResolver;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -31,8 +29,6 @@ import static java.io.File.separator;
  * @since 2018/10/18
  */
 public class ContinueCreatePDF {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContinueCreatePDF.class);
-
     private File ftlJsonDataFile;
     private File ftlFile;
     private File htmlFile;
