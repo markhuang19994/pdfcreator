@@ -34,6 +34,21 @@ public class Util {
         }
     }
 
+    public static boolean cleanDirectory(File folder) {
+        File[] files = folder.listFiles();
+        boolean isAllDelete = true;
+        if (files != null) {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    isAllDelete = isAllDelete && cleanDirectory(f);
+                } else {
+                    isAllDelete = isAllDelete && f.delete();
+                }
+            }
+        }
+        return isAllDelete;
+    }
+
     public static String getFileNameWithoutExtension(String fileName) {
         return fileName.contains(".") ? fileName.split("\\.")[0] : fileName;
     }
@@ -73,8 +88,8 @@ public class Util {
         BlockingDeque<File> deque = new LinkedBlockingDeque<>();
         List<File> result = new ArrayList<>();
         deque.push(dir);
-        while ((!deque.isEmpty() || !isAllExecutionDone(futures))) {
-            if (findFirst && result.size() > 0) break;
+        while (true) {
+            if ((deque.isEmpty() && isAllExecutionDone(futures)) || (findFirst && result.size() > 0)) break;
             File innerDir = fileDeqPollFirst(deque);
             if (innerDir == null || emptyFile.getName().equals(innerDir.getName())) continue;
             Future<?> future = executor.submit(() -> {

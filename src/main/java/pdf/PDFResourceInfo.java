@@ -77,6 +77,13 @@ public class PDFResourceInfo {
         ftlFileName = "NT99.ftl";
     }
 
+    public boolean cleanResources() {
+        boolean delete = Util.cleanDirectory(new File(resultPdfPath));
+        boolean delete1 = Util.cleanDirectory(new File(resultHtmlPath));
+        boolean delete2 = Util.cleanDirectory(new File(ftlDirPath));
+        return delete && delete1 && delete2;
+    }
+
     public String getResourcesPath() {
         return resourcesPath;
     }

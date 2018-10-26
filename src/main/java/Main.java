@@ -19,8 +19,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Main {
     public static void main(String[] args) {
+        String argsStr = Arrays.asList(args).toString();
         if (args.length != 0) {
-            String argsStr = Arrays.asList(args).toString();
             if (argsStr.contains("-version")) {
                 System.out.println(String.format("PDF製造機 版本:%s", "1.0.0"));
                 return;
@@ -61,6 +61,10 @@ public class Main {
         System.out.println(String.format("FTL源目錄:%s", pdfResourceInfo.getFtlDirPath()));
         System.out.println(String.format("HTML轉FTL產出檔案:%s", pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html"));
         System.out.println(String.format("HTML轉PDF產出檔案:%s", pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".pdf"));
+        if (argsStr.contains("-clean")) {
+            boolean b = pdfResourceInfo.cleanResources();
+            if (b) System.err.println("resources資料清除成功");
+        }
         for (String arg : args) {
             if (arg.equalsIgnoreCase("-g")) {
                 htmlFormatter.htmlToFtlFormat();
