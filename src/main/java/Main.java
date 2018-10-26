@@ -85,11 +85,12 @@ public class Main {
     private static void printHelp() {
         System.out.println("-g :generate ftl from html resource/result/source_html or use \"-h\" to figure one");
         System.out.println("-c :continue create pdf when resource/result/ftl changed or use \"-f\" to figure one");
+        System.out.println("-clean :clean ftl & html & temp directory");
         System.out.println("-r [dir path]:custom your resources root path");
         System.out.println("-f [file path]:custom your ftl file path");
         System.out.println("-h [dir path]:custom your html source directory");
         System.out.println("[other]");
-        System.out.println("If you want put cutomer variable in ftl,you can edit data/data.json");
+        System.out.println("If you want put customer variable in ftl,you can edit data/data.json");
     }
 
     private static final ReentrantLock LOCK = new ReentrantLock();
