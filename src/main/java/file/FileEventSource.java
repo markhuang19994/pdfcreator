@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  */
 class FileEventSource {
 
-    private Map<File, FileListener> listenerMap = new HashMap<>();
-    private Map<File, Long> lastModifyTimeMap = new HashMap<>();
+    private Map<File, FileListener> listenerMap = new ConcurrentHashMap<>();
+    private Map<File, Long> lastModifyTimeMap = new ConcurrentHashMap<>();
     private static FileEventSource fileEventSource = new FileEventSource();
 
     private FileEventSource() {
