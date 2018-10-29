@@ -7,7 +7,7 @@ import util.Util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 /**
  * @author MarkHuang
@@ -17,15 +17,22 @@ import java.util.concurrent.TimeUnit;
  * @since 2018/2/15
  */
 public class FreeMarkerTemplate {
-    public Template getTemplate(String dir, String name) {
+    private static FreeMarkerTemplate freeMarkerTemplate = new FreeMarkerTemplate();
+    private FreeMarkerTemplate(){}
+
+    public static FreeMarkerTemplate getInstance() {
+        return freeMarkerTemplate;
+    }
+
+    public Optional<Template> getTemplate(String dir, String name) {
         return getTemplate(dir, name, 0);
     }
 
-    private Template getTemplate(String dir, String name, int count) {
+    private Optional<Template> getTemplate(String dir, String name, int count) {
         try {
             Configuration cfg = new Configuration();
             cfg.setDirectoryForTemplateLoading(new File(dir));
-            return cfg.getTemplate(name);
+            return Optional.of(cfg.getTemplate(name));
         } catch (IOException e) {
             //避免多線程產生造成的FileNotFoundException
             if (count <= 20 && e instanceof FileNotFoundException) {
@@ -35,7 +42,7 @@ public class FreeMarkerTemplate {
                 e.printStackTrace();
             }
         }
-        return null;
+        return Optional.empty();
     }
 }
 

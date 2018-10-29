@@ -86,15 +86,19 @@ public class ContinueCreatePDF {
     /**
      * ftl生成html
      */
-    private void createHTML(Map ftlKeyVal) {
-        try {
-            Template template = new FreeMarkerTemplate().getTemplate(pdfResourceInfo.getFtlDirPath(), pdfResourceInfo.getFtlFileName());
-            Writer stringWriter = new FileWriter(htmlFile);
-            template.process(ftlKeyVal, stringWriter);
-            System.err.println("FTL to HTML 轉換完成!");
-        } catch (IOException | TemplateException e) {
-            e.printStackTrace();
-        }
+    private void createHTML(final Map<String, String> ftlKeyVal) {
+        FreeMarkerTemplate freeMarkerTemplate = FreeMarkerTemplate.getInstance();
+        String ftlDirPath = pdfResourceInfo.getFtlDirPath();
+        String ftlFileName = pdfResourceInfo.getFtlFileName();
+        freeMarkerTemplate.getTemplate(ftlDirPath, ftlFileName).ifPresent(template -> {
+            try {
+                Writer stringWriter = new FileWriter(htmlFile);
+                template.process(ftlKeyVal, stringWriter);
+                System.err.println("FTL to HTML 轉換完成!");
+            } catch (IOException | TemplateException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
