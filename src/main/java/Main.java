@@ -50,11 +50,16 @@ public class Main {
 
         ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResourceInfo);
         HTMLFormatter htmlFormatter = HTMLFormatter.getInstance(pdfResourceInfo);
-        System.out.println(String.format("資源目錄:%s", pdfResourceInfo.getResourcesPath()));
-        System.out.println(String.format("HTML源目錄:%s", pdfResourceInfo.getHtmlSourcePath()));
-        System.out.println(String.format("FTL源目錄:%s", pdfResourceInfo.getFtlDirPath()));
-        System.out.println(String.format("HTML轉FTL產出檔案:%s", pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html"));
-        System.out.println(String.format("HTML轉PDF產出檔案:%s", pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".pdf"));
+        System.out.printf("資源目錄:%s\n", pdfResourceInfo.getResourcesPath());
+        System.out.printf("HTML源目錄:%s\n", pdfResourceInfo.getHtmlSourcePath());
+        System.out.printf("FTL源目錄:%s\n", pdfResourceInfo.getFtlDirPath());
+        System.out.printf("HTML轉FTL產出檔案:%s\n", pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html");
+        System.out.printf("HTML轉PDF產出檔案:%s\n", pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".pdf");
+
+        actionAnalysis.getActionFirstParam("-font").ifPresent(fontName -> {
+            pdfResourceInfo.setFontName(fontName);
+            System.out.printf("PDF使用字體: %s\n",fontName);
+        });
 
         if (actionMap.containsKey("-clean")) {
             boolean b = pdfResourceInfo.cleanResources();
@@ -77,6 +82,7 @@ public class Main {
                 "-r [dir path]:custom your resources root path" + "\n" +
                 "-f [file path]:custom your ftl file path" + "\n" +
                 "-h [dir path]:custom your html source directory" + "\n" +
+                "-font [font name]:custom your pdf font" + "\n" +
                 "[other]" + "\n" +
                 "If you want put customer variable in ftl,you can edit data/data.json" + "\n";
     }

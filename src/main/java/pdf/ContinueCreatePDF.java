@@ -111,7 +111,7 @@ public class ContinueCreatePDF {
             Document document = XMLResource.load(br).getDocument();
             ITextRenderer iTextRenderer = new ITextRenderer();
             ITextFontResolver fontResolver = iTextRenderer.getFontResolver();
-            fontResolver.addFont(pdfResourceInfo.getResourcesPath() + "font" + separator + "msjhbd.ttf", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            fontResolver.addFont(pdfResourceInfo.getResourcesPath() + "font" + separator + pdfResourceInfo.getFontName(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
             iTextRenderer.setDocument(document, null);
             iTextRenderer.layout();
             iTextRenderer.createPDF(new FileOutputStream(dest));
