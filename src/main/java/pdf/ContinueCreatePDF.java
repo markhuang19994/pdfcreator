@@ -47,7 +47,7 @@ public class ContinueCreatePDF {
     }
 
     @SuppressWarnings("unchecked")
-    private FileListener fileListener = new FileListener() {
+    private FileListener ftlResourceListener = new FileListener() {
         @Override
         public void onChange(FileEvent event) {
             File currentFile = event.getCurrentTarget();
@@ -60,7 +60,7 @@ public class ContinueCreatePDF {
                     List<File> newCssFileList = getCssFileList(nowUseCssPath);
                     FileManager manager = FileManager.getInstance();
                     manager.removeListener(cssFileList);
-                    manager.addListener(newCssFileList, fileListener);
+                    manager.addListener(newCssFileList, ftlResourceListener);
                     cssFileList = newCssFileList;
                 }
             } else {
@@ -71,12 +71,12 @@ public class ContinueCreatePDF {
     };
 
     @SuppressWarnings("unchecked")
-    public void createPDFWhenFTLChange() {
+    public void createPDFWhenFTLResourceChange() {
         FileManager manager = FileManager.getInstance();
-        manager.addListener(ftlFile, fileListener);
-        manager.addListener(ftlJsonDataFile, fileListener);
+        manager.addListener(ftlFile, ftlResourceListener);
+        manager.addListener(ftlJsonDataFile, ftlResourceListener);
         if (cssFileList != null && cssFileList.size() != 0) {
-            manager.addListener(cssFileList, fileListener);
+            manager.addListener(cssFileList, ftlResourceListener);
         }
         FreeMarkerKeyValue keyVal = pdfResourceInfo.getKeyVal();
         createHTML(keyVal);

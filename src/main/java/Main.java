@@ -1,15 +1,12 @@
-import execute.ActionAnalysis;
+import analysis.ActionAnalysis;
 import formate.HTMLFormatter;
 import pdf.ContinueCreatePDF;
 import pdf.PDFResourceInfo;
 import util.Util;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * args解析順序 version -> help -> r -> h -> f -> clean -> g -> c
@@ -69,7 +66,7 @@ public class Main {
         }
 
         if (actionMap.containsKey("-c")) {
-            continueCreatePDF.createPDFWhenFTLChange();
+            continueCreatePDF.createPDFWhenFTLResourceChange();
         }
     }
 

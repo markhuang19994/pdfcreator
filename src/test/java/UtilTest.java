@@ -1,7 +1,3 @@
-import file.FileEvent;
-import file.FileListener;
-import file.FileManager;
-import formate.HTMLFormatter;
 import org.junit.Test;
 import pdf.PDFResourceInfo;
 import util.Util;
@@ -9,8 +5,6 @@ import util.Util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * @author MarkHuang
@@ -56,24 +50,15 @@ public class UtilTest {
         long l = System.currentTimeMillis();
 //        File file = searchFileInDirectory(new File("C:\\"), "aso.ini");
         List<File> file = Util.searchFileInDirectory(new File("C:\\"), "aso.ini");
-        List<File> file2 = Util.searchFileInDirectory(new File("C:\\"), "Aspose.Pdf.dll");
-        System.out.println(file2);
+        System.out.println(file);
         System.out.println(System.currentTimeMillis() - l);
-        Main.notStop();
     }
 
 
-//    @Test
-//    public void test2(){
-//        FileManager.getInstance().addListener(new File("C:\\Users\\1710002NB01\\Documents\\SVN\\pdfcreator\\src\\main\\resources\\result\\ftl\\NT99.ftl"),new FileListener(){
-//            @Override
-//            public void onChange(FileEvent event) {
-//                System.out.println("wow");
-//                event.getCurrentTarget();
-//            }
-//        });
-//        Main.notStop();
-//    }
+    @Test
+    public void test2(){
+        System.out.println(Runtime.getRuntime().availableProcessors());
+    }
 
 
 
