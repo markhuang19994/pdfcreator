@@ -34,8 +34,8 @@ public class Util {
         }
     }
 
-    public static boolean cleanDirectory(File folder) {
-        File[] files = folder.listFiles();
+    public static boolean cleanDirectory(File dir) {
+        File[] files = dir.listFiles();
         boolean isAllDelete = true;
         if (files != null) {
             for (File f : files) {
@@ -47,6 +47,19 @@ public class Util {
             }
         }
         return isAllDelete;
+    }
+
+    public static Optional<String> getFirstFileNameInDirectory(File dir) {
+        if (!dir.isDirectory()) return Optional.empty();
+        File[] files = dir.listFiles();
+        if (files == null) return Optional.empty();
+        Arrays.sort(files, (f1, f2) -> f1.lastModified() > f2.lastModified() ? 1 : -1);
+        for (File file : files) {
+            if (file.isFile()) {
+                return Optional.of(file.getName());
+            }
+        }
+        return Optional.empty();
     }
 
     public static String getFileNameWithoutExtension(String fileName) {

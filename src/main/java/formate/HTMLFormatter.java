@@ -6,8 +6,6 @@ import util.Util;
 import java.io.File;
 import java.util.List;
 
-import static java.io.File.separator;
-
 /**
  * @author MarkHuang
  * @version <ul>
@@ -17,11 +15,9 @@ import static java.io.File.separator;
  */
 public class HTMLFormatter {
     private PDFResourceInfo pdfResourceInfo;
-    private String htmlSourcePath;
 
     private HTMLFormatter(PDFResourceInfo pdfResourceInfo) {
         this.pdfResourceInfo = pdfResourceInfo;
-        this.htmlSourcePath = pdfResourceInfo.getResourcesPath() + "result" + separator + "source_html" + separator;
     }
 
     public static HTMLFormatter getInstance(PDFResourceInfo pdfResourceInfo) {
@@ -33,7 +29,7 @@ public class HTMLFormatter {
      */
     public void htmlToFtlFormat() {
         //讀取檔案
-        String source = Util.readeFile(new File(htmlSourcePath + "source.html"));
+        String source = Util.readeFile(new File(pdfResourceInfo.getHtmlSourcePath() + pdfResourceInfo.getHtmlSourceFileName()));
         //移除註解
         source = source.replaceAll("<!--((.|\n|\r|\t)*?)-->", "");
         //移除script標籤

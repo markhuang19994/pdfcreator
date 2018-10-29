@@ -22,6 +22,7 @@ public class PDFResourceInfo {
     private String htmlSourcePath;
     private String resultHtmlPath;
     private String resultPdfPath;
+    private String htmlSourceFileName;
     private String ftlDirPath;
     private String ftlFileName;
     private String ftlKeyValJsonPath;
@@ -74,7 +75,8 @@ public class PDFResourceInfo {
         if (jsonKeyValue != null) {
             jsonKeyValue.forEach(keyVal::put);
         }
-        ftlFileName = "NT99.ftl";
+        htmlSourceFileName = Util.getFirstFileNameInDirectory(new File(htmlSourcePath)).orElse("source.html");
+        ftlFileName = Util.getFileNameWithoutExtension(htmlSourceFileName) + ".ftl";
     }
 
     public boolean cleanResources() {
@@ -146,5 +148,9 @@ public class PDFResourceInfo {
 
     public void setKeyVal(FreeMarkerKeyValue keyVal) {
         this.keyVal = keyVal;
+    }
+
+    public String getHtmlSourceFileName() {
+        return htmlSourceFileName;
     }
 }
