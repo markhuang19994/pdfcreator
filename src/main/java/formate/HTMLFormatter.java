@@ -41,10 +41,10 @@ public class HTMLFormatter {
         //image裡面的src更換成${imagePath!} 注:image資源必須擺在images資料夾下，並在data.json宣告imagePath絕對路徑
         source = source.replaceAll("<img(.*?)src(.*?)(['\"])((\\./)?images)[/\\\\](.*?)(['\"])(.*?)/>", "<img$1src$2'\\${imagePath!}/$6'$8 />");
         //link裡面的href更換成${cssPath!}
-        source = source.replaceAll("<link(.*)?href(.*?)(['\"]((\\./)?css)[/\\\\](.*)?['\"](.*?)>)", "<link rel=\"stylesheet\" href=\"\\${cssPath!}/$6\" />");
+        source = source.replaceAll("<link(.*?)href(.*?)(['\"]((\\./)?css)[/\\\\](.*?)['\"](.*?)>)", "<link rel=\"stylesheet\" href=\"\\${cssPath!}/$6\" />");
         //添加ftl的標頭
-        if (!source.contains("<!DOCTYPE"))
-            source = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" + source;
+        source = source.replaceAll("<!DOCTYPE.*?/?>", "");
+        source = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" + source;
 
         //在title後添加ftl的標籤
         StringBuilder sb = new StringBuilder(15000);
@@ -66,12 +66,13 @@ public class HTMLFormatter {
 
     /**
      * 把所有的css內容合併，並產出合併ftl的字串
+     *
      * @param cssFileList css檔案
      * @param cssFtlName  合併檔的名稱
      * @return String
      */
     @Deprecated
-    private String generateCssFtlString(List<File> cssFileList,String cssFtlName) {
+    private String generateCssFtlString(List<File> cssFileList, String cssFtlName) {
         StringBuilder sb = new StringBuilder(15000);
         sb.append("<#macro ").append(cssFtlName).append(">");
         sb.append("\n<#assign imagePath = imgPath!>");

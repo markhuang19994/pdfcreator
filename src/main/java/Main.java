@@ -61,6 +61,11 @@ public class Main {
             System.out.printf("PDF使用字體: %s\n",fontName);
         });
 
+        actionAnalysis.getActionFirstParam("-c").ifPresent(isUseChrome -> {
+            pdfResourceInfo.setUseChrome(isUseChrome.equalsIgnoreCase("use_chrome"));
+            System.out.println("使用chrome產生PDF");
+        });
+
         if (actionMap.containsKey("-clean")) {
             boolean b = pdfResourceInfo.cleanResources();
             if (b) System.err.println("resources資料清除成功");

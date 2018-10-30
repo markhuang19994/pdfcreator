@@ -15,6 +15,7 @@
 3.資源配置:    
    >image資源預設放在images資料夾底下，source.html內需使用&lt;img src='./images/xxx.jpg'/&gt;   
    >css資源預設放在css資料夾底下，source.html內需使用&lt;link href='./css/ooo.css'/&gt;   
+   >css內的image資源須放在css資料夾相對位置，如background: url(../image/my_image.jpg)    
    >data.json中可以加入cssPath指定css目錄與imagePath指定image目錄    
    >source.html轉換後input checkbox會變成圖片資源，相關圖片放置在本專案"others"資料夾中
    

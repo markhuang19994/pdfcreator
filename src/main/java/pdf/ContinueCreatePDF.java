@@ -7,7 +7,6 @@ import file.FileListener;
 import file.FileManager;
 import freemarker.FreeMarkerKeyValue;
 import freemarker.FreeMarkerTemplate;
-import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextFontResolver;
@@ -66,7 +65,12 @@ public class ContinueCreatePDF {
             } else {
                 createHTML(keyVal);
             }
-            createPdf();
+
+            if (pdfResourceInfo.isUseChrome()) {
+                createPdfByChrome();
+            } else {
+                createPdf();
+            }
         }
     };
 
@@ -80,7 +84,12 @@ public class ContinueCreatePDF {
         }
         FreeMarkerKeyValue keyVal = pdfResourceInfo.getKeyVal();
         createHTML(keyVal);
-        createPdf();
+
+        if (pdfResourceInfo.isUseChrome()) {
+            createPdfByChrome();
+        } else {
+            createPdf();
+        }
     }
 
     /**
@@ -99,6 +108,38 @@ public class ContinueCreatePDF {
                 e.printStackTrace();
             }
         });
+    }
+
+    public void createPdfByChrome() {
+        String htmlSourceFileName = pdfResourceInfo.getHtmlSourceFileName();
+        ProcessBuilder pb = new ProcessBuilder(
+                "node",
+                "index.js",
+                "file:///" + pdfResourceInfo.getResultHtmlPath() + htmlSourceFileName,
+                pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(htmlSourceFileName) + ".pdf"
+        );
+        pb.directory(new File(pdfResourceInfo.getResourcesPath() + separator + "pup"));
+        try {
+            Process process = pb.start();
+            String console = processConsole(process);
+            System.err.println(console);
+            int exitCode = process.waitFor();
+            System.err.println(exitCode == 0 ? "PDF 產生完成!" : "PDF 產生失敗!");
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String processConsole(Process process) throws IOException {
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(process.getInputStream()));
+        StringBuilder builder = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            builder.append(line);
+            builder.append(System.getProperty("line.separator"));
+        }
+        return builder.toString();
     }
 
     /**

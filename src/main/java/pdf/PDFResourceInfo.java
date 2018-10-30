@@ -27,6 +27,7 @@ public class PDFResourceInfo {
     private String ftlFileName;
     private String ftlKeyValJsonPath;
     private String fontName;
+    private boolean isUseChrome;
     private FreeMarkerKeyValue keyVal = new FreeMarkerKeyValue();
 
     private PDFResourceInfo() {
@@ -61,7 +62,7 @@ public class PDFResourceInfo {
         }
         Object imagePath = jsonObj.get("imgPath");
         if (imagePath == null) {
-            jsonObj.element("imgPath", "file:///" + htmlSourcePath.replaceAll("\\\\", "/") + "images");
+            jsonObj.element("imagePath", "file:///" + htmlSourcePath.replaceAll("\\\\", "/") + "images");
         }
         return jsonObj;
     }
@@ -73,6 +74,7 @@ public class PDFResourceInfo {
         htmlSourcePath = resourcesPath + "result" + separator + "source_html" + separator;
         ftlKeyValJsonPath = resourcesPath + "data" + separator + "data.json";
         fontName = "msjhbd.ttf";
+        isUseChrome = false;
         JSONObject jsonKeyValue = readJsonKeyValue();
         if (jsonKeyValue != null) {
             jsonKeyValue.forEach(keyVal::put);
@@ -162,5 +164,13 @@ public class PDFResourceInfo {
 
     public void setFontName(String fontName) {
         this.fontName = fontName;
+    }
+
+    public void setUseChrome(boolean useChrome) {
+        isUseChrome = useChrome;
+    }
+
+    public boolean isUseChrome() {
+        return isUseChrome;
     }
 }
