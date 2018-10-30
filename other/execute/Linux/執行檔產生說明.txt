@@ -1,0 +1,9 @@
+1.產生jar檔
+在專案資料夾執行 => mvn clean:clean jar:jar package -Dmaven.test.skip=true
+
+2.產生pdfc執行檔
+chmod 755 createPdfc.sh
+./createPdfc.sh pdf-creator-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+3.加入path
+export PATH=/yourPDFCBinPath:$PATH

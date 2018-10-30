@@ -1,0 +1,6 @@
+1.安裝node.js與npm => https://www.npmjs.com/get-npm
+//以下步驟在commandLine執行
+2.cd 切換資料夾至resource/pup
+3.npm init => 全部都選預設值就好，比如進入點index.js、版本1.0.0
+4.npm i puppeteer
+5.npm i puppeteer-core
