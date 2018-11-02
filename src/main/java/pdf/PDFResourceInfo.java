@@ -158,6 +158,10 @@ public class PDFResourceInfo {
         return htmlSourceFileName;
     }
 
+    public void setHtmlSourceFileName(String htmlSourceFileName) {
+        this.htmlSourceFileName = htmlSourceFileName;
+    }
+
     public String getFontName() {
         return fontName;
     }

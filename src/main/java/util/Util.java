@@ -1,6 +1,8 @@
 package util;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -14,7 +16,7 @@ import java.util.concurrent.*;
 public class Util {
     public static String readeFile(File file) {
         StringBuilder sb = new StringBuilder(15000);
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String temp;
             while ((temp = reader.readLine()) != null) {
                 sb.append(temp).append("\n");
@@ -56,6 +58,7 @@ public class Util {
         Arrays.sort(files, (f1, f2) -> f1.lastModified() > f2.lastModified() ? 1 : -1);
         for (File file : files) {
             if (file.isFile()) {
+                if (file.getName().charAt(0) == '.') continue;
                 return Optional.of(file.getName());
             }
         }

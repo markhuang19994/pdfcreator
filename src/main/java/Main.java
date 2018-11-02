@@ -48,6 +48,11 @@ public class Main {
             pdfResourceInfo.setFtlFileName(ftlFile.getName());
         });
 
+        actionAnalysis.getActionFirstParam("-html.name").ifPresent(fileName -> {
+            pdfResourceInfo.setHtmlSourceFileName(fileName);
+            System.out.printf("HTML 檔案名稱: %s\n",fileName);
+        });
+
         ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResourceInfo);
         HTMLFormatter htmlFormatter = HTMLFormatter.getInstance(pdfResourceInfo);
         System.out.printf("資源目錄:%s\n", pdfResourceInfo.getResourcesPath());
