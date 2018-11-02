@@ -53,11 +53,12 @@ public class HTMLFormatter {
 //        sb.append("\n\t<#import \"FunctionUtil.ftl\" as func/>");
         sb.append("\n\t<style type=\"text/css\">");
         sb.append("\n\t\t@page {");
-        sb.append("\n\t\t\tsize: 1080px 1510px;");//偽A4，使用者可以根據需要自行調整ftl
+        sb.append("\n\t\t\tsize: a4;");
         sb.append("\n\t\t\tmargin: 0;");//消除預設的margin
         sb.append("\n\t\t}");
         sb.append("\n\t</style>\n");
         source = source.substring(0, headEndIndex) + sb.toString() + source.substring(headEndIndex);
+        source = source.replaceAll("(\n\\s*\n){2,}","\n");
 
         //輸出ftl檔案
         Util.writeFile(new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName()), source);
