@@ -5,6 +5,7 @@ import com.lowagie.text.DocumentException;
 import file.FileEvent;
 import file.FileListener;
 import file.FileManager;
+import formate.HTMLFormatter;
 import freemarker.FreeMarkerKeyValue;
 import freemarker.FreeMarkerTemplate;
 import freemarker.template.TemplateException;
@@ -34,6 +35,7 @@ public class ContinueCreatePDF {
     private List<File> cssFileList;
     private PDFResourceInfo pdfResourceInfo;
     private String nowUseCssPath;
+    private HTMLFormatter htmlFormatter;
 
     public ContinueCreatePDF(PDFResourceInfo pdfResourceInfo) {
         this.pdfResourceInfo = pdfResourceInfo;
@@ -43,6 +45,7 @@ public class ContinueCreatePDF {
         if (updateCssPath()) {
             cssFileList = getCssFileList(nowUseCssPath);
         }
+        htmlFormatter = HTMLFormatter.getInstance(pdfResourceInfo);
     }
 
     @SuppressWarnings("unchecked")
@@ -75,8 +78,17 @@ public class ContinueCreatePDF {
     };
 
     @SuppressWarnings("unchecked")
+    private FileListener htmlResourceListener = new FileListener() {
+        @Override
+        public void onChange(FileEvent event) {
+            htmlFormatter.htmlToFtlFormat();
+        }
+    };
+
+    @SuppressWarnings("unchecked")
     public void createPDFWhenFTLResourceChange() {
         FileManager manager = FileManager.getInstance();
+        manager.addListener(new File(pdfResourceInfo.getHtmlSourcePath() + pdfResourceInfo.getHtmlSourceFileName()),htmlResourceListener);
         manager.addListener(ftlFile, ftlResourceListener);
         manager.addListener(ftlJsonDataFile, ftlResourceListener);
         if (cssFileList != null && cssFileList.size() != 0) {
@@ -134,7 +146,7 @@ public class ContinueCreatePDF {
         BufferedReader reader =
                 new BufferedReader(new InputStreamReader(process.getInputStream()));
         StringBuilder builder = new StringBuilder();
-        String line = null;
+        String line;
         while ((line = reader.readLine()) != null) {
             builder.append(line);
             builder.append(System.getProperty("line.separator"));
