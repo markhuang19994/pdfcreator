@@ -15,6 +15,10 @@ import java.util.concurrent.*;
  */
 public class Util {
     public static String readeFile(File file) {
+        return readeFile(file, 0);
+    }
+
+    public static String readeFile(File file, int count) {
         StringBuilder sb = new StringBuilder(15000);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String temp;
@@ -22,7 +26,12 @@ public class Util {
                 sb.append(temp).append("\n");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            if (e instanceof FileNotFoundException && count <= 20) {
+                sleep(50);
+                return readeFile(file, ++count);
+            } else {
+                e.printStackTrace();
+            }
         }
         return sb.toString();
     }

@@ -50,14 +50,16 @@ public class HTMLFormatter {
         StringBuilder sb = new StringBuilder(15000);
         int titleEndIndex = source.indexOf("</title>");
         int headEndIndex = source.indexOf("</head>");
-//        sb.append("\n\t<#import \"FunctionUtil.ftl\" as func/>");
+
+        //sb.append("\n\t<#import \"FunctionUtil.ftl\" as func/>");
         sb.append("\n\t<style type=\"text/css\">");
         sb.append("\n\t\t@page {");
-        sb.append("\n\t\t\tsize: a4;");
+        sb.append("\n\t\t\tsize: a4;");//另一個可以嘗試的預設值1080px * 1510px
         sb.append("\n\t\t\tmargin: 0;");//消除預設的margin
         sb.append("\n\t\t}");
         sb.append("\n\t</style>\n");
         source = source.substring(0, headEndIndex) + sb.toString() + source.substring(headEndIndex);
+        //移除超過2行的連續空白
         source = source.replaceAll("(\n\\s*\n){2,}","\n");
 
         //輸出ftl檔案
