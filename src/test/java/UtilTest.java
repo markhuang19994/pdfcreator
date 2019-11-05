@@ -49,7 +49,7 @@ public class UtilTest {
     public void readeFileToStringTest() {
         long l = System.currentTimeMillis();
 //        File file = searchFileInDirectory(new File("C:\\"), "aso.ini");
-        List<File> file = Util.searchFileInDirectory(new File("C:\\"), "aso.ini");
+        List<File> file = Util.searchFileInDirectory(new File("C:\\"), "sw.js");
         System.out.println(file);
         System.out.println(System.currentTimeMillis() - l);
     }

@@ -1,7 +1,6 @@
 package pdf;
 
 import com.itextpdf.text.pdf.BaseFont;
-import com.lowagie.text.DocumentException;
 import file.FileEvent;
 import file.FileListener;
 import file.FileManager;
@@ -164,12 +163,12 @@ public class ContinueCreatePDF {
             Document document = XMLResource.load(br).getDocument();
             ITextRenderer iTextRenderer = new ITextRenderer();
             ITextFontResolver fontResolver = iTextRenderer.getFontResolver();
-            fontResolver.addFont(pdfResourceInfo.getResourcesPath() + "font" + separator + pdfResourceInfo.getFontName(), BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            fontResolver.addFont(pdfResourceInfo.getResourcesPath() + "font" + separator + pdfResourceInfo.getFontName(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             iTextRenderer.setDocument(document, null);
             iTextRenderer.layout();
             iTextRenderer.createPDF(new FileOutputStream(dest));
             System.err.println("PDF 產生完成!");
-        } catch (DocumentException | IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

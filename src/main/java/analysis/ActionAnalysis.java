@@ -10,11 +10,11 @@ import java.util.*;
  * @since 2018/10/29
  */
 public class ActionAnalysis {
-    private List<String> tempParams = new ArrayList<>();
     private Map<String, List<String>> actionMap = new HashMap<>();
 
     private ActionAnalysis(String[] args) {
         for (String arg : args) {
+            List<String> tempParams = new ArrayList<>();
             if (arg.charAt(0) == '-') {
                 tempParams = new ArrayList<>();
                 actionMap.put(arg, tempParams);

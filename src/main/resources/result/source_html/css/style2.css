@@ -1,0 +1,203 @@
+@charset "UTF-8";
+
+@page {
+    size: A4;
+}
+
+html, body {
+    width: 797px;
+    color: #333;
+    font-family: "Microsoft JhengHei", Arial, "微軟正黑體", Helvetica, serif;
+    font-size: 12px;
+    line-height: 140%;
+}
+
+body {
+    width: 90%;
+    margin-left: 6.5%;
+}
+
+.container {
+    width: 100%;
+}
+
+#header-wrapper {
+    width: 100%;
+}
+
+#header-logo {
+    width: 30%;
+    margin-left: 5%;
+    position: relative;
+    top: 12px;
+}
+
+#header-logo img {
+    width: 150px;
+}
+
+#header-title {
+    display: inline-block;
+}
+
+#header-title h1 {
+    font-size: 32px;
+}
+
+#salary-table td:nth-child(even){
+    text-align: right;
+}
+
+#top-title {
+    width: 100%;
+    height: 50px;
+    margin-top: 24px;
+    background-color: #cccccc;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.top-title-item span {
+    display: inline-block;
+    position: relative;
+    top: 15px;
+    font-size: 20px;
+    margin: 0 8%;
+    vertical-align: top;
+    font-weight: 500;
+    line-height: 5px;
+}
+
+#top-title .top-title-item {
+    height: 100%;
+    width: 24%;
+}
+
+#top-title-year {
+    position: relative;
+    left: 50px;
+    margin-left: 28%;
+}
+
+#top-title-month {
+    margin-left: 38%;
+}
+
+#top-title-line2 {
+    font-size: 17px;
+    font-weight: 500;
+    margin-top: 24px;
+    position: relative;
+    left: 2%;
+}
+
+#top-title-line2 .value {
+    border-bottom: 2px solid black;
+    display: inline-block;
+    text-align: center;
+    font-size: 18px;
+    line-height: 120%;
+}
+
+#top-title-line2-department {
+    width: 40%;
+}
+
+#top-title-line2-employee-number {
+    width: 35%;
+}
+
+#top-title-line2-name {
+    width: 23%;
+}
+
+#top-title-line2-department .value {
+    width: 80%;
+}
+
+#top-title-line2-employee-number .value {
+    width: 47%;
+}
+
+#top-title-line2-name .value {
+    width: 50%;
+}
+
+#salary-table {
+    min-height: 500px;
+    width: 100%;
+    margin-top: 24px;
+    border: 2px solid black;
+    border-collapse: collapse;
+    font-weight: 500;
+}
+
+#salary-table thead {
+    text-align: center;
+    font-size: 25px;
+}
+
+#salary-table tbody {
+    font-size: 24px;
+}
+
+#salary-table tr {
+    height: 48px;
+}
+
+#salary-table th,
+#salary-table td {
+    border: 2px solid black;
+}
+
+footer .container {
+    font-weight: 500;
+}
+
+#footer-line1 {
+    font-size: 22px;
+    margin-top: 24px;
+}
+
+#footer-pay-day {
+    font-size: 16px;
+    float: right;
+    margin-top: 18px;
+    margin-bottom: 6px;
+}
+
+#footer-line1-recruitment {
+    margin-right: 5%;
+    width: 50%;
+}
+
+#footer-line1-bank-account {
+    width: 45%;
+}
+
+#footer-line1 .value {
+    border-bottom: 2px solid rgb(0, 0, 0);
+    min-width: 180px;
+    display: inline-block;
+    text-align: center;
+    line-height: 150%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
