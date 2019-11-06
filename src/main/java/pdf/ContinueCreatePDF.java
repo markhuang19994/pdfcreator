@@ -64,10 +64,8 @@ public class ContinueCreatePDF {
                     manager.addListener(newCssFileList, ftlResourceListener);
                     cssFileList = newCssFileList;
                 }
-            } else {
-                createHTML(keyVal);
             }
-
+            createHTML(keyVal);
             if (pdfResourceInfo.isUseChrome()) {
                 createPdfByChrome();
             } else {
