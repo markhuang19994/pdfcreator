@@ -30,7 +30,7 @@ import static java.io.File.separator;
 public class ContinueCreatePDF {
     private File ftlJsonDataFile;
     private File ftlFile;
-    private File htmlFile;
+    private File resultHtmlFile;
     private List<File> cssFileList;
     private PDFResourceInfo pdfResourceInfo;
     private String nowUseCssPath;
@@ -40,7 +40,7 @@ public class ContinueCreatePDF {
         this.pdfResourceInfo = pdfResourceInfo;
         ftlJsonDataFile = new File(pdfResourceInfo.getFtlKeyValJsonPath());
         ftlFile = new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName());
-        htmlFile = new File(pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html");
+        resultHtmlFile = new File(pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html");
         if (updateCssPath()) {
             cssFileList = getCssFileList(nowUseCssPath);
         }
@@ -75,7 +75,7 @@ public class ContinueCreatePDF {
     };
 
     @SuppressWarnings("unchecked")
-    private FileListener htmlResourceListener = new FileListener() {
+    private FileListener sourceHtmlResourceListener = new FileListener() {
         @Override
         public void onChange(FileEvent event) {
             htmlFormatter.htmlToFtlFormat();
@@ -83,14 +83,30 @@ public class ContinueCreatePDF {
     };
 
     @SuppressWarnings("unchecked")
-    public void createPDFWhenFTLResourceChange() {
+    private FileListener resultHtmlListener = new FileListener() {
+        @Override
+        public void onChange(FileEvent event) {
+            if (pdfResourceInfo.isUseChrome()) {
+                createPdfByChrome();
+            } else {
+                createPdf();
+            }
+        }
+    };
+
+    @SuppressWarnings("unchecked")
+    public void createPDFWhenResourceChange() {
         FileManager manager = FileManager.getInstance();
-        manager.addListener(new File(pdfResourceInfo.getHtmlSourcePath() + pdfResourceInfo.getHtmlSourceFileName()),htmlResourceListener);
+        manager.addListener(new File(pdfResourceInfo.getHtmlSourcePath() + pdfResourceInfo.getHtmlSourceFileName()), sourceHtmlResourceListener);
         manager.addListener(ftlFile, ftlResourceListener);
         manager.addListener(ftlJsonDataFile, ftlResourceListener);
+        manager.addListener(resultHtmlFile, resultHtmlListener);
         if (cssFileList != null && cssFileList.size() != 0) {
             manager.addListener(cssFileList, ftlResourceListener);
         }
+    }
+
+    public void createHtmlAndPdf() {
         FreeMarkerKeyValue keyVal = pdfResourceInfo.getKeyVal();
         createHTML(keyVal);
 
@@ -110,7 +126,7 @@ public class ContinueCreatePDF {
         String ftlFileName = pdfResourceInfo.getFtlFileName();
         freeMarkerTemplate.getTemplate(ftlDirPath, ftlFileName).ifPresent(template -> {
             try {
-                Writer stringWriter = new FileWriter(htmlFile);
+                Writer stringWriter = new FileWriter(resultHtmlFile);
                 template.process(ftlKeyVal, stringWriter);
                 System.err.println("FTL to HTML 轉換完成!");
             } catch (IOException | TemplateException e) {
@@ -156,7 +172,7 @@ public class ContinueCreatePDF {
      */
     private void createPdf() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(htmlFile), StandardCharsets.UTF_8))) {
+                new FileInputStream(resultHtmlFile), StandardCharsets.UTF_8))) {
             File dest = new File(pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(ftlFile.getName()) + ".pdf");
             Document document = XMLResource.load(br).getDocument();
             ITextRenderer iTextRenderer = new ITextRenderer();

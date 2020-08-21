@@ -44,7 +44,7 @@ public class Main {
 
         actionAnalysis.getActionFirstParam("-f").ifPresent(param -> {
             File ftlFile = new File(param);
-            pdfResourceInfo.setFtlDirPath(ftlFile.getParentFile().getAbsolutePath());
+            pdfResourceInfo.setFtlDirPath(ftlFile.getParentFile().getAbsolutePath() + File.separator);
             pdfResourceInfo.setFtlFileName(ftlFile.getName());
         });
 
@@ -80,8 +80,9 @@ public class Main {
             htmlFormatter.htmlToFtlFormat();
         }
 
+        continueCreatePDF.createHtmlAndPdf();
         if (actionMap.containsKey("-c")) {
-            continueCreatePDF.createPDFWhenFTLResourceChange();
+            continueCreatePDF.createPDFWhenResourceChange();
         }
     }
 

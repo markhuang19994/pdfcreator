@@ -13,13 +13,15 @@ public class ActionAnalysis {
     private Map<String, List<String>> actionMap = new HashMap<>();
 
     private ActionAnalysis(String[] args) {
+        List<String> tempParams = null;
         for (String arg : args) {
-            List<String> tempParams = new ArrayList<>();
             if (arg.charAt(0) == '-') {
                 tempParams = new ArrayList<>();
                 actionMap.put(arg, tempParams);
             } else {
-                tempParams.add(arg);
+                if (tempParams != null) {
+                    tempParams.add(arg);
+                }
             }
         }
     }
