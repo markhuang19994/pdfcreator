@@ -8,6 +8,7 @@ import formate.HTMLFormatter;
 import freemarker.FreeMarkerKeyValue;
 import freemarker.FreeMarkerTemplate;
 import freemarker.template.TemplateException;
+import net.sf.json.JSONObject;
 import org.w3c.dom.Document;
 import org.xhtmlrenderer.pdf.ITextFontResolver;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -16,7 +17,10 @@ import util.Util;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static java.io.File.separator;
 
@@ -28,35 +32,31 @@ import static java.io.File.separator;
  * @since 2018/10/18
  */
 public class ContinueCreatePDF {
-    private File ftlJsonDataFile;
-    private File ftlFile;
-    private File resultHtmlFile;
-    private List<File> cssFileList;
-    private PDFResourceInfo pdfResourceInfo;
-    private String nowUseCssPath;
-    private HTMLFormatter htmlFormatter;
-
-    public ContinueCreatePDF(PDFResourceInfo pdfResourceInfo) {
-        this.pdfResourceInfo = pdfResourceInfo;
-        ftlJsonDataFile = new File(pdfResourceInfo.getFtlKeyValJsonPath());
-        ftlFile = new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName());
-        resultHtmlFile = new File(pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html");
+    private final File          ftlJsonDataFile;
+    private final File          ftlFile;
+    private final File          resultHtmlFile;
+    private final PDFResource   pdfResource;
+    private final HTMLFormatter htmlFormatter;
+    private       List<File>    cssFileList;
+    private       String        nowUseCssPath;
+    
+    public ContinueCreatePDF(PDFResource pdfResource) {
+        this.pdfResource = pdfResource;
+        ftlJsonDataFile = new File(pdfResource.getFtlJsonDataPath());
+        ftlFile = new File(pdfResource.getResultFtlDir() + pdfResource.getFtlFileName());
+        resultHtmlFile = new File(pdfResource.getResultHtmlDir() + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".html");
         if (updateCssPath()) {
             cssFileList = getCssFileList(nowUseCssPath);
         }
-        htmlFormatter = HTMLFormatter.getInstance(pdfResourceInfo);
+        htmlFormatter = HTMLFormatter.getInstance(pdfResource);
     }
-
+    
     @SuppressWarnings("unchecked")
-    private FileListener ftlResourceListener = new FileListener() {
+    private final FileListener ftlResourceListener = new FileListener() {
         @Override
         public void onChange(FileEvent event) {
             File currentFile = event.getCurrentTarget();
-            FreeMarkerKeyValue keyVal = pdfResourceInfo.getKeyVal();
             if (ftlJsonDataFile.getAbsolutePath().equalsIgnoreCase(currentFile.getAbsolutePath())) {
-                keyVal = new FreeMarkerKeyValue();
-                Objects.requireNonNull(pdfResourceInfo.readJsonKeyValue()).forEach(keyVal::put);
-                pdfResourceInfo.setKeyVal(keyVal);
                 if (updateCssPath()) {
                     List<File> newCssFileList = getCssFileList(nowUseCssPath);
                     FileManager manager = FileManager.getInstance();
@@ -64,40 +64,40 @@ public class ContinueCreatePDF {
                     manager.addListener(newCssFileList, ftlResourceListener);
                     cssFileList = newCssFileList;
                 }
-            }
-            createHTML(keyVal);
-            if (pdfResourceInfo.isUseChrome()) {
-                createPdfByChrome();
+    
+                JSONObject ftlJsonData = pdfResource.readFtlJsonData();
+                pdfResource.setDefaultCssAndImagesPath(ftlJsonData);
+                FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
+                ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
+                pdfResource.setFtlKeyVal(ftlKeyVal);
+                createHTML(ftlKeyVal);
             } else {
-                createPdf();
+                createHTML(new FreeMarkerKeyValue<>());
             }
         }
     };
-
-    @SuppressWarnings("unchecked")
-    private FileListener sourceHtmlResourceListener = new FileListener() {
+    
+    private final FileListener sourceHtmlResourceListener = new FileListener() {
         @Override
         public void onChange(FileEvent event) {
             htmlFormatter.htmlToFtlFormat();
         }
     };
-
-    @SuppressWarnings("unchecked")
-    private FileListener resultHtmlListener = new FileListener() {
+    
+    private final FileListener resultHtmlListener = new FileListener() {
         @Override
         public void onChange(FileEvent event) {
-            if (pdfResourceInfo.isUseChrome()) {
+            if (pdfResource.isUseChrome()) {
                 createPdfByChrome();
             } else {
                 createPdf();
             }
         }
     };
-
-    @SuppressWarnings("unchecked")
+    
     public void createPDFWhenResourceChange() {
         FileManager manager = FileManager.getInstance();
-        manager.addListener(new File(pdfResourceInfo.getHtmlSourcePath() + pdfResourceInfo.getHtmlSourceFileName()), sourceHtmlResourceListener);
+        manager.addListener(new File(pdfResource.getHtmlSourcePath() + pdfResource.getHtmlSourceFileName()), sourceHtmlResourceListener);
         manager.addListener(ftlFile, ftlResourceListener);
         manager.addListener(ftlJsonDataFile, ftlResourceListener);
         manager.addListener(resultHtmlFile, resultHtmlListener);
@@ -105,25 +105,25 @@ public class ContinueCreatePDF {
             manager.addListener(cssFileList, ftlResourceListener);
         }
     }
-
+    
     public void createHtmlAndPdf() {
-        FreeMarkerKeyValue keyVal = pdfResourceInfo.getKeyVal();
+        FreeMarkerKeyValue<String, String> keyVal = pdfResource.getFtlKeyVal();
         createHTML(keyVal);
-
-        if (pdfResourceInfo.isUseChrome()) {
+        
+        if (pdfResource.isUseChrome()) {
             createPdfByChrome();
         } else {
             createPdf();
         }
     }
-
+    
     /**
      * ftl生成html
      */
     private void createHTML(final Map<String, String> ftlKeyVal) {
         FreeMarkerTemplate freeMarkerTemplate = FreeMarkerTemplate.getInstance();
-        String ftlDirPath = pdfResourceInfo.getFtlDirPath();
-        String ftlFileName = pdfResourceInfo.getFtlFileName();
+        String ftlDirPath = pdfResource.getResultFtlDir();
+        String ftlFileName = pdfResource.getFtlFileName();
         freeMarkerTemplate.getTemplate(ftlDirPath, ftlFileName).ifPresent(template -> {
             try {
                 Writer stringWriter = new FileWriter(resultHtmlFile);
@@ -134,27 +134,29 @@ public class ContinueCreatePDF {
             }
         });
     }
-
+    
     public void createPdfByChrome() {
-        String htmlSourceFileName = pdfResourceInfo.getHtmlSourceFileName();
+        String htmlSourceFileName = pdfResource.getHtmlSourceFileName();
         ProcessBuilder pb = new ProcessBuilder(
                 "node",
                 "index.js",
-                "file:///" + pdfResourceInfo.getResultHtmlPath() + htmlSourceFileName,
-                pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(htmlSourceFileName) + ".pdf"
+                "file:///" + pdfResource.getResultHtmlDir() + htmlSourceFileName,
+                pdfResource.getResultPdfDir() + Util.getFileNameWithoutExtension(htmlSourceFileName) + ".pdf"
         );
-        pb.directory(new File(pdfResourceInfo.getResourcesPath() + separator + "pup"));
+        pb.directory(new File(pdfResource.getResourcesPath() + separator + "pup"));
         try {
             Process process = pb.start();
             String console = processConsole(process);
             System.err.println(console);
             int exitCode = process.waitFor();
-            System.err.println(exitCode == 0 ? "PDF 產生完成!" : "PDF 產生失敗!");
+            System.err.println(exitCode == 0
+                               ? "PDF 產生完成!"
+                               : "PDF 產生失敗!");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
-
+    
     private String processConsole(Process process) throws IOException {
         BufferedReader reader =
                 new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -166,18 +168,18 @@ public class ContinueCreatePDF {
         }
         return builder.toString();
     }
-
+    
     /**
      * 創建pdf
      */
     private void createPdf() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 new FileInputStream(resultHtmlFile), StandardCharsets.UTF_8))) {
-            File dest = new File(pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(ftlFile.getName()) + ".pdf");
+            File dest = new File(pdfResource.getResultPdfDir() + Util.getFileNameWithoutExtension(ftlFile.getName()) + ".pdf");
             Document document = XMLResource.load(br).getDocument();
             ITextRenderer iTextRenderer = new ITextRenderer();
             ITextFontResolver fontResolver = iTextRenderer.getFontResolver();
-            fontResolver.addFont(pdfResourceInfo.getResourcesPath() + "font" + separator + pdfResourceInfo.getFontName(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            fontResolver.addFont(pdfResource.getResourcesPath() + "font" + separator + pdfResource.getPdfFontName(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             iTextRenderer.setDocument(document, null);
             iTextRenderer.layout();
             iTextRenderer.createPDF(new FileOutputStream(dest));
@@ -186,17 +188,19 @@ public class ContinueCreatePDF {
             e.printStackTrace();
         }
     }
-
+    
     private boolean updateCssPath() {
-        Object cssPath = pdfResourceInfo.getKeyVal().get("cssPath");
-        cssPath = cssPath == null ? pdfResourceInfo.getHtmlSourcePath() + separator + "css" : cssPath;
+        Object cssPath = pdfResource.getFtlKeyVal().get("cssPath");
+        cssPath = cssPath == null
+                  ? pdfResource.getHtmlSourcePath() + separator + "css"
+                  : cssPath;
         if (!cssPath.equals(nowUseCssPath)) {
             nowUseCssPath = Util.getFileFormFileURI(cssPath.toString()).getAbsolutePath();
             return true;
         }
         return false;
     }
-
+    
     private List<File> getCssFileList(String cssPath) {
         File[] cssFiles = new File(cssPath).listFiles(File::isFile);
         if (cssFiles != null) {

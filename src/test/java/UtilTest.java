@@ -1,5 +1,5 @@
 import org.junit.Test;
-import pdf.PDFResourceInfo;
+import pdf.PDFResource;
 import util.Util;
 
 import java.io.File;
@@ -14,7 +14,7 @@ import java.util.List;
  * @since 2018/10/22
  */
 public class UtilTest {
-    private PDFResourceInfo instance = PDFResourceInfo.getInstance();
+    private PDFResource instance = PDFResource.getInstance();
 
     public static File searchFileInDirectory(File dir, String fileName) {
         List<File> fileList = new ArrayList<>();

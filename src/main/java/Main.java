@@ -1,7 +1,7 @@
 import analysis.ActionAnalysis;
 import formate.HTMLFormatter;
 import pdf.ContinueCreatePDF;
-import pdf.PDFResourceInfo;
+import pdf.PDFResource;
 import util.Util;
 
 import java.io.File;
@@ -21,8 +21,11 @@ public class Main {
     public static void main(String[] args) {
         ActionAnalysis actionAnalysis = ActionAnalysis.getInstance(args);
         Map<String, List<String>> actionMap = actionAnalysis.getActionMap();
-        PDFResourceInfo pdfResourceInfo = PDFResourceInfo.getInstance();
-        if (actionMap.size() == 0) return;
+        PDFResource pdfResource = PDFResource.getInstance();
+        if (actionMap.size() == 0) {
+            System.out.println(getHelp());
+            return;
+        }
         if (actionMap.containsKey("-version")) {
             System.out.println(getVersion());
             return;
@@ -34,45 +37,45 @@ public class Main {
         }
 
         actionAnalysis.getActionFirstParam("-r").ifPresent(param -> {
-            pdfResourceInfo.setResourcesPath(new File(param).getAbsolutePath() + File.separator);
-            pdfResourceInfo.initResources();
+            pdfResource.setResourcesPath(new File(param).getAbsolutePath() + File.separator);
+            pdfResource.initResources();
         });
 
         actionAnalysis.getActionFirstParam("-h").ifPresent(param -> {
-            pdfResourceInfo.setHtmlSourcePath(new File(param).getAbsolutePath() + File.separator);
+            pdfResource.setHtmlSourcePath(new File(param).getAbsolutePath() + File.separator);
         });
 
         actionAnalysis.getActionFirstParam("-f").ifPresent(param -> {
             File ftlFile = new File(param);
-            pdfResourceInfo.setFtlDirPath(ftlFile.getParentFile().getAbsolutePath() + File.separator);
-            pdfResourceInfo.setFtlFileName(ftlFile.getName());
+            pdfResource.setResultFtlDir(ftlFile.getParentFile().getAbsolutePath() + File.separator);
+            pdfResource.setFtlFileName(ftlFile.getName());
         });
 
         actionAnalysis.getActionFirstParam("-html.name").ifPresent(fileName -> {
-            pdfResourceInfo.setHtmlSourceFileName(fileName);
+            pdfResource.setHtmlSourceFileName(fileName);
             System.out.printf("HTML 檔案名稱: %s\n",fileName);
         });
 
-        ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResourceInfo);
-        HTMLFormatter htmlFormatter = HTMLFormatter.getInstance(pdfResourceInfo);
-        System.out.printf("資源目錄:%s\n", pdfResourceInfo.getResourcesPath());
-        System.out.printf("HTML源目錄:%s\n", pdfResourceInfo.getHtmlSourcePath());
-        System.out.printf("FTL源目錄:%s\n", pdfResourceInfo.getFtlDirPath());
-        System.out.printf("HTML轉FTL產出檔案:%s\n", pdfResourceInfo.getResultHtmlPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".html");
-        System.out.printf("HTML轉PDF產出檔案:%s\n", pdfResourceInfo.getResultPdfPath() + Util.getFileNameWithoutExtension(pdfResourceInfo.getFtlFileName()) + ".pdf");
+        ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResource);
+        HTMLFormatter htmlFormatter = HTMLFormatter.getInstance(pdfResource);
+        System.out.printf("資源目錄:%s\n", pdfResource.getResourcesPath());
+        System.out.printf("HTML源目錄:%s\n", pdfResource.getHtmlSourcePath());
+        System.out.printf("FTL源目錄:%s\n", pdfResource.getResultFtlDir());
+        System.out.printf("HTML轉FTL產出檔案:%s\n", pdfResource.getResultHtmlDir() + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".html");
+        System.out.printf("HTML轉PDF產出檔案:%s\n", pdfResource.getResultPdfDir() + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".pdf");
 
         actionAnalysis.getActionFirstParam("-font").ifPresent(fontName -> {
-            pdfResourceInfo.setFontName(fontName);
+            pdfResource.setPdfFontName(fontName);
             System.out.printf("PDF使用字體: %s\n",fontName);
         });
 
         actionAnalysis.getActionFirstParam("-c").ifPresent(isUseChrome -> {
-            pdfResourceInfo.setUseChrome(isUseChrome.equalsIgnoreCase("use_chrome"));
+            pdfResource.setUseChrome(isUseChrome.equalsIgnoreCase("use_chrome"));
             System.out.println("使用chrome產生PDF");
         });
 
         if (actionMap.containsKey("-clean")) {
-            boolean b = pdfResourceInfo.cleanResources();
+            boolean b = pdfResource.cleanResources();
             if (b) System.err.println("resources資料清除成功");
         }
 

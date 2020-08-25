@@ -1,6 +1,6 @@
 package formate;
 
-import pdf.PDFResourceInfo;
+import pdf.PDFResource;
 import util.Util;
 
 import java.io.File;
@@ -14,14 +14,14 @@ import java.util.List;
  * @since 2018/10/22
  */
 public class HTMLFormatter {
-    private PDFResourceInfo pdfResourceInfo;
+    private PDFResource pdfResource;
 
-    private HTMLFormatter(PDFResourceInfo pdfResourceInfo) {
-        this.pdfResourceInfo = pdfResourceInfo;
+    private HTMLFormatter(PDFResource pdfResource) {
+        this.pdfResource = pdfResource;
     }
 
-    public static HTMLFormatter getInstance(PDFResourceInfo pdfResourceInfo) {
-        return new HTMLFormatter(pdfResourceInfo);
+    public static HTMLFormatter getInstance(PDFResource pdfResource) {
+        return new HTMLFormatter(pdfResource);
     }
 
     /**
@@ -29,7 +29,7 @@ public class HTMLFormatter {
      */
     public void htmlToFtlFormat() {
         //讀取檔案
-        String source = Util.readeFile(new File(pdfResourceInfo.getHtmlSourcePath() + pdfResourceInfo.getHtmlSourceFileName()));
+        String source = Util.readeFile(new File(pdfResource.getHtmlSourcePath() + pdfResource.getHtmlSourceFileName()));
         //移除註解
         source = source.replaceAll("<!--((.|\n|\r|\t)*?)-->", "");
         //移除script標籤
@@ -63,7 +63,7 @@ public class HTMLFormatter {
         source = source.replaceAll("(\n\\s*\n){2,}","\n");
 
         //輸出ftl檔案
-        Util.writeFile(new File(pdfResourceInfo.getFtlDirPath() + pdfResourceInfo.getFtlFileName()), source);
+        Util.writeFile(new File(pdfResource.getResultFtlDir() + pdfResource.getFtlFileName()), source);
         System.err.println("HTML to FTL 轉換完成!");
     }
 
