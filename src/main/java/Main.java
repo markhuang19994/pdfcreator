@@ -24,38 +24,11 @@ public class Main {
         ActionAnalysis actionAnalysis = ActionAnalysis.getInstance(args);
         Map<String, List<String>> actionMap = actionAnalysis.getActionMap();
         PDFResource pdfResource = PDFResource.getInstance();
-        if (actionMap.size() == 0) {
-            System.out.println(getHelp());
-            return;
-        }
-        if (actionMap.containsKey("-version")) {
-            System.out.println(getVersion());
-            return;
-        }
-
-        if (actionMap.containsKey("-help")) {
-            System.out.println(getHelp());
-            return;
-        }
+        System.out.println(getVersion());
 
         actionAnalysis.getActionFirstParam("-r").ifPresent(param -> {
             pdfResource.setResourcesDir(new File(param));
             pdfResource.initResources();
-        });
-
-        actionAnalysis.getActionFirstParam("-h").ifPresent(param -> {
-            pdfResource.setSourceHtmlDir(new File(param));
-        });
-
-        actionAnalysis.getActionFirstParam("-f").ifPresent(param -> {
-            File ftlFile = new File(param);
-            pdfResource.setResultFtlDir(ftlFile.getParentFile());
-            pdfResource.setFtlFileName(ftlFile.getName());
-        });
-
-        actionAnalysis.getActionFirstParam("-html.name").ifPresent(fileName -> {
-            pdfResource.setSourceHtmlName(fileName);
-            System.out.printf("HTML 檔案名稱: %s\n",fileName);
         });
 
         ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResource);
@@ -69,11 +42,6 @@ public class Main {
         actionAnalysis.getActionFirstParam("-font").ifPresent(fontName -> {
             pdfResource.setPdfFontName(fontName);
             System.out.printf("PDF使用字體: %s\n",fontName);
-        });
-
-        actionAnalysis.getActionFirstParam("-c").ifPresent(isUseChrome -> {
-            pdfResource.setUseChrome(isUseChrome.equalsIgnoreCase("use_chrome"));
-            System.out.println("使用chrome產生PDF");
         });
 
         if (actionMap.containsKey("-clean")) {
@@ -90,20 +58,8 @@ public class Main {
             continueCreatePDF.createPDFWhenResourceChange();
         }
     }
-
-    private static String getHelp() {
-        return "-g :generate ftl from html resource/result/source_html or use \"-h\" to figure one" + "\n" +
-                "-c :continue create pdf when resource/result/ftl changed or use \"-f\" to figure one" + "\n" +
-                "-clean :clean ftl & html & temp directory" + "\n" +
-                "-r [dir path]:custom your resources root path" + "\n" +
-                "-f [file path]:custom your ftl file path" + "\n" +
-                "-h [dir path]:custom your html source directory" + "\n" +
-                "-font [font name]:custom your pdf font" + "\n" +
-                "[other]" + "\n" +
-                "If you want put customer variable in ftl,you can edit data/data.json" + "\n";
-    }
-
+    
     private static String getVersion() {
-        return String.format("PDF製造機 版本:%s", "1.0.0");
+        return String.format("PDF製造機 版本:%s", "1.1.2");
     }
 }

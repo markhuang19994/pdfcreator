@@ -28,7 +28,6 @@ public class PDFResource {
     private        String                             ftlFileName;
     private        File                               ftlJsonDataFile;
     private        String                             pdfFontName;
-    private        boolean                            isUseChrome;
     private        FreeMarkerKeyValue<String, String> ftlKeyVal = new FreeMarkerKeyValue<>();
     
     private PDFResource() {
@@ -45,7 +44,6 @@ public class PDFResource {
     public void initResources() {
         initFileAndDirectory();
         pdfFontName = "msjhbd.ttf";
-        isUseChrome = false;
         JSONObject ftlJsonData = readFtlJsonData();
         setDefaultCssPath(ftlJsonData);
         setDefaultImagePath(ftlJsonData);
@@ -77,18 +75,12 @@ public class PDFResource {
     }
     
     void setDefaultCssPath(JSONObject jsonObj) {
-        String cssPath = (String) jsonObj.get("cssPath");
-        if (cssPath == null) {
-            this.cssPath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "css";
-        }
+        this.cssPath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "css";
         jsonObj.element("cssPath", this.cssPath);
     }
     
     void setDefaultImagePath(JSONObject jsonObj) {
-        String imagePath = (String) jsonObj.get("imgPath");
-        if (imagePath == null) {
-            this.imagePath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "images";
-        }
+        this.imagePath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "images";
         jsonObj.element("imagePath", this.imagePath);
     }
     
@@ -177,14 +169,6 @@ public class PDFResource {
     
     public void setPdfFontName(String pdfFontName) {
         this.pdfFontName = pdfFontName;
-    }
-    
-    public void setUseChrome(boolean useChrome) {
-        isUseChrome = useChrome;
-    }
-    
-    public boolean isUseChrome() {
-        return isUseChrome;
     }
     
     public String getCssPath() {

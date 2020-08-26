@@ -50,32 +50,6 @@ public class ContinueCreatePDF {
             File currentFile = event.getCurrentTarget();
             if (ftlJsonDataFile.getAbsolutePath().equalsIgnoreCase(currentFile.getAbsolutePath())) {
                 JSONObject ftlJsonData = pdfResource.readFtlJsonData();
-    
-                FileManager fileManager = FileManager.getInstance();
-                String newCssPath = (String) ftlJsonData.get("cssPath");
-                if (newCssPath != null && !newCssPath.equals(pdfResource.getCssPath())) {
-                    fileManager.removeListener(new File(Util.rmFileProtocol(pdfResource.getCssPath())));
-                    fileManager.addListener(new File(Util.rmFileProtocol(newCssPath)), ftlResourceListener);
-                    pdfResource.setCssPath(newCssPath);
-                    System.err.println("New css path:" + newCssPath);
-                }
-    
-                if (newCssPath == null) {
-                    pdfResource.setDefaultCssPath(ftlJsonData);
-                }
-    
-                String newImagePath = (String) ftlJsonData.get("imagePath");
-                if (newImagePath != null && !newImagePath.equals(pdfResource.getImagePath())) {
-                    fileManager.removeListener(new File(Util.rmFileProtocol(pdfResource.getImagePath())));
-                    fileManager.addListener(new File(Util.rmFileProtocol(newImagePath)), ftlResourceListener);
-                    pdfResource.setCssPath(newImagePath);
-                    System.err.println("New image path:" + newImagePath);
-                }
-    
-                if (newImagePath == null) {
-                    pdfResource.setDefaultImagePath(ftlJsonData);
-                }
-
                 FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
                 ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
                 pdfResource.setFtlKeyVal(ftlKeyVal);
@@ -96,11 +70,7 @@ public class ContinueCreatePDF {
     private final FileListener resultHtmlListener = new FileListener() {
         @Override
         public void onChange(FileEvent event) {
-            if (pdfResource.isUseChrome()) {
-                createPdfByChrome();
-            } else {
-                createPdf();
-            }
+            createPdf();
         }
     };
     
@@ -117,12 +87,7 @@ public class ContinueCreatePDF {
     public void createHtmlAndPdf() {
         FreeMarkerKeyValue<String, String> keyVal = pdfResource.getFtlKeyVal();
         createHTML(keyVal);
-        
-        if (pdfResource.isUseChrome()) {
-            createPdfByChrome();
-        } else {
-            createPdf();
-        }
+        createPdf();
     }
     
     /**
@@ -141,40 +106,6 @@ public class ContinueCreatePDF {
                 e.printStackTrace();
             }
         });
-    }
-    
-    public void createPdfByChrome() {
-        String htmlSourceFileName = pdfResource.getSourceHtmlName();
-        ProcessBuilder pb = new ProcessBuilder(
-                "node",
-                "index.js",
-                "file:///" + pdfResource.getResultHtmlDir() + htmlSourceFileName,
-                pdfResource.getResultPdfDir() + Util.getFileNameWithoutExtension(htmlSourceFileName) + ".pdf"
-        );
-        pb.directory(new File(pdfResource.getResourcesDir(), "pup"));
-        try {
-            Process process = pb.start();
-            String console = processConsole(process);
-            System.err.println(console);
-            int exitCode = process.waitFor();
-            System.err.println(exitCode == 0
-                               ? "PDF 產生完成!"
-                               : "PDF 產生失敗!");
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    private String processConsole(Process process) throws IOException {
-        BufferedReader reader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()));
-        StringBuilder builder = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            builder.append(line);
-            builder.append(System.getProperty("line.separator"));
-        }
-        return builder.toString();
     }
     
     /**
