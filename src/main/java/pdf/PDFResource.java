@@ -16,12 +16,9 @@ import static java.io.File.separator;
  * @since 2018/10/22
  */
 public class PDFResource {
-    private static PDFResource                        pdfResource;
     private        File                               resourcesDir;
     private        File                               sourceHtmlDir;
     private        String                             sourceHtmlName;
-    private        String                             cssPath;
-    private        String                             imagePath;
     private        File                               resultHtmlDir;
     private        File                               resultPdfDir;
     private        File                               resultFtlDir;
@@ -37,16 +34,17 @@ public class PDFResource {
     }
     
     public static PDFResource getInstance() {
-        if (pdfResource == null) pdfResource = new PDFResource();
-        return pdfResource;
+        return Nested.INSTANCE;
+    }
+    
+    private static final class Nested {
+        private static final PDFResource INSTANCE = new PDFResource();
     }
     
     public void initResources() {
         initFileAndDirectory();
         pdfFontName = "msjhbd.ttf";
         JSONObject ftlJsonData = readFtlJsonData();
-        setDefaultCssPath(ftlJsonData);
-        setDefaultImagePath(ftlJsonData);
         ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
         sourceHtmlName = Util.getFirstFileNameInDirectory(sourceHtmlDir).orElse("source.html");
         ftlFileName = Util.getFileNameWithoutExtension(sourceHtmlName) + ".ftl";
@@ -72,16 +70,6 @@ public class PDFResource {
         return ftlJsonDataFile.exists()
                ? JSONObject.fromObject(Util.readeFile(ftlJsonDataFile))
                : new JSONObject();
-    }
-    
-    void setDefaultCssPath(JSONObject jsonObj) {
-        this.cssPath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "css";
-        jsonObj.element("cssPath", this.cssPath);
-    }
-    
-    void setDefaultImagePath(JSONObject jsonObj) {
-        this.imagePath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "images";
-        jsonObj.element("imagePath", this.imagePath);
     }
     
     public boolean cleanResources() {
@@ -172,20 +160,12 @@ public class PDFResource {
     }
     
     public String getCssPath() {
-        return cssPath;
+        return "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "css";
     }
     
-    public PDFResource setCssPath(String cssPath) {
-        this.cssPath = cssPath;
-        return this;
-    }
     
     public String getImagePath() {
-        return imagePath;
+        return "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "images";
     }
     
-    public PDFResource setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-        return this;
-    }
 }

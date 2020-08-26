@@ -18,7 +18,7 @@
 
 <div class="container">
     <div id="header-wrapper">
-        <div class="inline-block" id="header-logo">
+        <div class="inline-block" id="header-logo ">
             <img src='${imagePath!}/logo.jpg' alt="none"   />
         </div>
         <div class="inline-block" id="header-title">
