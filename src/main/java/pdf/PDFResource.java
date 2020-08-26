@@ -20,6 +20,8 @@ public class PDFResource {
     private        File                               resourcesDir;
     private        File                               sourceHtmlDir;
     private        String                             sourceHtmlName;
+    private        String                             cssPath;
+    private        String                             imagePath;
     private        File                               resultHtmlDir;
     private        File                               resultPdfDir;
     private        File                               resultFtlDir;
@@ -45,7 +47,8 @@ public class PDFResource {
         pdfFontName = "msjhbd.ttf";
         isUseChrome = false;
         JSONObject ftlJsonData = readFtlJsonData();
-        setDefaultCssAndImagesPath(ftlJsonData);
+        setDefaultCssPath(ftlJsonData);
+        setDefaultImagePath(ftlJsonData);
         ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
         sourceHtmlName = Util.getFirstFileNameInDirectory(sourceHtmlDir).orElse("source.html");
         ftlFileName = Util.getFileNameWithoutExtension(sourceHtmlName) + ".ftl";
@@ -73,15 +76,20 @@ public class PDFResource {
                : new JSONObject();
     }
     
-    void setDefaultCssAndImagesPath(JSONObject jsonObj) {
-        Object cssPath = jsonObj.get("cssPath");
+    void setDefaultCssPath(JSONObject jsonObj) {
+        String cssPath = (String) jsonObj.get("cssPath");
         if (cssPath == null) {
-            jsonObj.element("cssPath", "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "css");
+            this.cssPath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "css";
         }
-        Object imagePath = jsonObj.get("imgPath");
+        jsonObj.element("cssPath", this.cssPath);
+    }
+    
+    void setDefaultImagePath(JSONObject jsonObj) {
+        String imagePath = (String) jsonObj.get("imgPath");
         if (imagePath == null) {
-            jsonObj.element("imagePath", "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "images");
+            this.imagePath = "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "images";
         }
+        jsonObj.element("imagePath", this.imagePath);
     }
     
     public boolean cleanResources() {
@@ -177,5 +185,23 @@ public class PDFResource {
     
     public boolean isUseChrome() {
         return isUseChrome;
+    }
+    
+    public String getCssPath() {
+        return cssPath;
+    }
+    
+    public PDFResource setCssPath(String cssPath) {
+        this.cssPath = cssPath;
+        return this;
+    }
+    
+    public String getImagePath() {
+        return imagePath;
+    }
+    
+    public PDFResource setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+        return this;
     }
 }

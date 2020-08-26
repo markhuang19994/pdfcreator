@@ -14,13 +14,17 @@ import java.util.concurrent.*;
  */
 public class Util {
     public static String slashFilePath(File file) {
-        return file.getAbsolutePath().replaceAll("\\\\", "/");
+        return file.getAbsolutePath().replace("\\", "/");
+    }
+    
+    public static String rmFileProtocol(String filePath) {
+        return filePath.replace("file:///", "");
     }
     
     public static String readeFile(File file) {
         return readeFile(file, 0);
     }
-
+    
     public static String readeFile(File file, int count) {
         StringBuilder sb = new StringBuilder(15000);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
@@ -38,7 +42,7 @@ public class Util {
         }
         return sb.toString();
     }
-
+    
     public static void writeFile(File file, String str) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write(str);
@@ -47,7 +51,7 @@ public class Util {
             e.printStackTrace();
         }
     }
-
+    
     public static boolean cleanDirectory(File dir) {
         File[] files = dir.listFiles();
         boolean isAllDelete = true;
@@ -62,12 +66,14 @@ public class Util {
         }
         return isAllDelete;
     }
-
+    
     public static Optional<String> getFirstFileNameInDirectory(File dir) {
         if (!dir.isDirectory()) return Optional.empty();
         File[] files = dir.listFiles();
         if (files == null) return Optional.empty();
-        Arrays.sort(files, (f1, f2) -> f1.lastModified() > f2.lastModified() ? 1 : -1);
+        Arrays.sort(files, (f1, f2) -> f1.lastModified() > f2.lastModified()
+                                       ? 1
+                                       : -1);
         for (File file : files) {
             if (file.isFile()) {
                 if (file.getName().charAt(0) == '.') continue;
@@ -76,11 +82,13 @@ public class Util {
         }
         return Optional.empty();
     }
-
+    
     public static String getFileNameWithoutExtension(String fileName) {
-        return fileName.contains(".") ? fileName.split("\\.")[0] : fileName;
+        return fileName.contains(".")
+               ? fileName.split("\\.")[0]
+               : fileName;
     }
-
+    
     public static void sleep(long milliseconds) {
         try {
             TimeUnit.MILLISECONDS.sleep(milliseconds);
@@ -88,7 +96,7 @@ public class Util {
             e.printStackTrace();
         }
     }
-
+    
     private static List<File> getAllFilesInDirectory(File dir, String fileName) {
         File[] files = dir.listFiles();
         if (files != null) {
@@ -96,13 +104,13 @@ public class Util {
         }
         return null;
     }
-
+    
     private static Map<String, List<File>> cacheFile = new ConcurrentHashMap<>(3000);
-
+    
     public static List<File> searchFileInDirectory(File dir, String fileName) {
         return searchFileInDirectory(dir, fileName, true);
     }
-
+    
     public static List<File> searchFileInDirectory(File dir, String fileName, boolean findFirst) {
         List<File> fileInCache = getFileInCache(dir, fileName);
         if (fileInCache != null) return fileInCache;
@@ -140,9 +148,11 @@ public class Util {
             futures.add(future);
         }
         executor.shutdown();
-        return result.size() == 0 ? null : result;
+        return result.size() == 0
+               ? null
+               : result;
     }
-
+    
     private static List<File> getFileInCache(File dir, String fileName) {
         List<File> cacheList = cacheFile.get(fileName);
         List<File> resultList = new ArrayList<>();
@@ -152,9 +162,11 @@ public class Util {
                 resultList.add(file);
             }
         }
-        return resultList.size() > 0 ? resultList : null;
+        return resultList.size() > 0
+               ? resultList
+               : null;
     }
-
+    
     private static void putFileInCache(File file) {
         String fileName = file.getName();
         List<File> cacheList = cacheFile.get(fileName);
@@ -164,14 +176,14 @@ public class Util {
         cacheList.add(file);
         cacheFile.put(fileName, cacheList);
     }
-
+    
     private static boolean isAllExecutionDone(List<Future<?>> futures) {
         for (Future<?> future : futures) {
             if (!future.isDone()) return false;
         }
         return true;
     }
-
+    
     private static File fileDeqPollFirst(BlockingDeque<File> deque) {
         try {
             return deque.pollFirst(100, TimeUnit.MILLISECONDS);
