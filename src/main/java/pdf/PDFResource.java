@@ -32,7 +32,6 @@ public class PDFResource {
     private PDFResource() {
         String resPath = System.getProperty("user.home") + separator + "Desktop" + separator + "resources" + separator;
         resourcesDir = new File(resPath);
-        initResources();
     }
     
     public static PDFResource getInstance() {

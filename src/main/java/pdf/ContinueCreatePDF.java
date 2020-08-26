@@ -53,9 +53,9 @@ public class ContinueCreatePDF {
                 FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
                 ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
                 pdfResource.setFtlKeyVal(ftlKeyVal);
-                createHTML(ftlKeyVal);
+                createHTML();
             } else {
-                createHTML(pdfResource.getFtlKeyVal());
+                createHTML();
             }
         }
     };
@@ -85,24 +85,23 @@ public class ContinueCreatePDF {
     }
     
     public void createHtmlAndPdf() {
-        FreeMarkerKeyValue<String, String> keyVal = pdfResource.getFtlKeyVal();
-        createHTML(keyVal);
+        createHTML();
         createPdf();
     }
     
     /**
      * ftl生成html
      */
-    private void createHTML(final Map<String, String> ftlKeyVal) {
+    private void createHTML() {
         FreeMarkerTemplate freeMarkerTemplate = FreeMarkerTemplate.getInstance();
         String ftlDirPath = pdfResource.getResultFtlDir().getAbsolutePath();
         String ftlFileName = pdfResource.getFtlFileName();
         freeMarkerTemplate.getTemplate(ftlDirPath, ftlFileName).ifPresent(template -> {
             try {
                 Writer stringWriter = new FileWriter(resultHtmlFile);
-                template.process(ftlKeyVal, stringWriter);
-                final FreeMarkerKeyValue<String, String> kv = pdfResource.getFtlKeyVal();
+                FreeMarkerKeyValue<String, String> kv = pdfResource.getFtlKeyVal();
                 kv.resetUnUseKey();
+                template.process(kv, stringWriter);
                 System.out.println("Ftl to html success!");
                 System.out.println("Not used keys:" + kv.getUnUseKey().toString());
             } catch (IOException | TemplateException e) {

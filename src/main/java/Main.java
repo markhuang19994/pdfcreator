@@ -2,18 +2,11 @@ import analysis.ActionAnalysis;
 import formate.HTMLFormatter;
 import pdf.ContinueCreatePDF;
 import pdf.PDFResource;
-import util.Util;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
-
-import static java.io.File.separator;
 
 /**
  * args解析順序 version -> help -> r -> h -> f -> clean -> g -> c
@@ -33,10 +26,24 @@ public class Main {
 
         actionAnalysis.getActionFirstParam("-r").ifPresent(param -> {
             pdfResource.setResourcesDir(new File(param));
-            pdfResource.initResources();
         });
+    
+        if (actionMap.containsKey("-init")) {
+            final File initDir = new File("/init");
+            if (initDir.exists()) {
+                try {
+                    Runtime.getRuntime().exec("rm -rf /resources").waitFor();
+                    Runtime.getRuntime().exec("cp -r /init/. /resources", null, initDir).waitFor();
+                    System.out.println("init success.");
+                    return;
+                } catch (IOException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                throw new RuntimeException("Init dir not exist:" + initDir.getAbsolutePath());
+            }
+        };
         
-        ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResource);
         HTMLFormatter htmlFormatter = HTMLFormatter.getInstance(pdfResource);
 //        System.out.printf("資源目錄:%s\n", pdfResource.getResourcesDir());
 //        System.out.printf("HTML源目錄:%s\n", pdfResource.getSourceHtmlDir());
@@ -53,11 +60,13 @@ public class Main {
             boolean b = pdfResource.cleanResources();
             if (b) System.out.println("resources dir clear success");
         }
-
+    
+        pdfResource.initResources();
         if (actionMap.containsKey("-g")) {
             htmlFormatter.htmlToFtlFormat();
         }
-
+    
+        ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResource);
         continueCreatePDF.createHtmlAndPdf();
         if (actionMap.containsKey("-c")) {
             continueCreatePDF.createPDFWhenResourceChange();
