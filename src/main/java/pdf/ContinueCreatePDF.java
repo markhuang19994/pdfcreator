@@ -42,9 +42,9 @@ public class ContinueCreatePDF {
     
     public ContinueCreatePDF(PDFResource pdfResource) {
         this.pdfResource = pdfResource;
-        ftlJsonDataFile = new File(pdfResource.getFtlJsonDataPath());
-        ftlFile = new File(pdfResource.getResultFtlDir() + pdfResource.getFtlFileName());
-        resultHtmlFile = new File(pdfResource.getResultHtmlDir() + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".html");
+        ftlJsonDataFile = pdfResource.getFtlJsonDataFile();
+        ftlFile = new File(pdfResource.getResultFtlDir(), pdfResource.getFtlFileName());
+        resultHtmlFile = new File(pdfResource.getResultHtmlDir(), Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".html");
         if (updateCssPath()) {
             cssFileList = getCssFileList(nowUseCssPath);
         }
@@ -64,7 +64,7 @@ public class ContinueCreatePDF {
                     manager.addListener(newCssFileList, ftlResourceListener);
                     cssFileList = newCssFileList;
                 }
-    
+                
                 JSONObject ftlJsonData = pdfResource.readFtlJsonData();
                 pdfResource.setDefaultCssAndImagesPath(ftlJsonData);
                 FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
@@ -97,7 +97,7 @@ public class ContinueCreatePDF {
     
     public void createPDFWhenResourceChange() {
         FileManager manager = FileManager.getInstance();
-        manager.addListener(new File(pdfResource.getHtmlSourcePath() + pdfResource.getHtmlSourceFileName()), sourceHtmlResourceListener);
+        manager.addListener(new File(pdfResource.getSourceHtmlDir(), pdfResource.getSourceHtmlName()), sourceHtmlResourceListener);
         manager.addListener(ftlFile, ftlResourceListener);
         manager.addListener(ftlJsonDataFile, ftlResourceListener);
         manager.addListener(resultHtmlFile, resultHtmlListener);
@@ -122,7 +122,7 @@ public class ContinueCreatePDF {
      */
     private void createHTML(final Map<String, String> ftlKeyVal) {
         FreeMarkerTemplate freeMarkerTemplate = FreeMarkerTemplate.getInstance();
-        String ftlDirPath = pdfResource.getResultFtlDir();
+        String ftlDirPath = pdfResource.getResultFtlDir().getAbsolutePath();
         String ftlFileName = pdfResource.getFtlFileName();
         freeMarkerTemplate.getTemplate(ftlDirPath, ftlFileName).ifPresent(template -> {
             try {
@@ -136,14 +136,14 @@ public class ContinueCreatePDF {
     }
     
     public void createPdfByChrome() {
-        String htmlSourceFileName = pdfResource.getHtmlSourceFileName();
+        String htmlSourceFileName = pdfResource.getSourceHtmlName();
         ProcessBuilder pb = new ProcessBuilder(
                 "node",
                 "index.js",
                 "file:///" + pdfResource.getResultHtmlDir() + htmlSourceFileName,
                 pdfResource.getResultPdfDir() + Util.getFileNameWithoutExtension(htmlSourceFileName) + ".pdf"
         );
-        pb.directory(new File(pdfResource.getResourcesPath() + separator + "pup"));
+        pb.directory(new File(pdfResource.getResourcesDir(), "pup"));
         try {
             Process process = pb.start();
             String console = processConsole(process);
@@ -173,13 +173,14 @@ public class ContinueCreatePDF {
      * 創建pdf
      */
     private void createPdf() {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(resultHtmlFile), StandardCharsets.UTF_8))) {
-            File dest = new File(pdfResource.getResultPdfDir() + Util.getFileNameWithoutExtension(ftlFile.getName()) + ".pdf");
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(resultHtmlFile.getAbsoluteFile()), StandardCharsets.UTF_8));
+            File dest = new File(pdfResource.getResultPdfDir(), Util.getFileNameWithoutExtension(ftlFile.getName()) + ".pdf");
             Document document = XMLResource.load(br).getDocument();
             ITextRenderer iTextRenderer = new ITextRenderer();
             ITextFontResolver fontResolver = iTextRenderer.getFontResolver();
-            fontResolver.addFont(pdfResource.getResourcesPath() + "font" + separator + pdfResource.getPdfFontName(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            fontResolver.addFont(pdfResource.getResourcesDir().getAbsolutePath() + separator + "font" + separator + pdfResource.getPdfFontName(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
             iTextRenderer.setDocument(document, null);
             iTextRenderer.layout();
             iTextRenderer.createPDF(new FileOutputStream(dest));
@@ -192,10 +193,10 @@ public class ContinueCreatePDF {
     private boolean updateCssPath() {
         Object cssPath = pdfResource.getFtlKeyVal().get("cssPath");
         cssPath = cssPath == null
-                  ? pdfResource.getHtmlSourcePath() + separator + "css"
+                  ? "file:///" + Util.slashFilePath(pdfResource.getSourceHtmlDir()) + "/" + "css"
                   : cssPath;
         if (!cssPath.equals(nowUseCssPath)) {
-            nowUseCssPath = Util.getFileFormFileURI(cssPath.toString()).getAbsolutePath();
+            nowUseCssPath = cssPath.toString();
             return true;
         }
         return false;

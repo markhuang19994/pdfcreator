@@ -5,7 +5,6 @@ import net.sf.json.JSONObject;
 import util.Util;
 
 import java.io.File;
-import java.net.URISyntaxException;
 
 import static java.io.File.separator;
 
@@ -18,29 +17,21 @@ import static java.io.File.separator;
  */
 public class PDFResource {
     private static PDFResource                        pdfResource;
-    private        String                             resourcesPath;
-    private        String htmlSourcePath;
-    private        String resultHtmlDir;
-    private        String resultPdfDir;
-    private        String htmlSourceFileName;
-    private        String resultFtlDir;
-    private        String ftlFileName;
-    private        String ftlJsonDataPath;
-    private        String pdfFontName;
-    private        boolean isUseChrome;
+    private        File                               resourcesDir;
+    private        File                               sourceHtmlDir;
+    private        String                             sourceHtmlName;
+    private        File                               resultHtmlDir;
+    private        File                               resultPdfDir;
+    private        File                               resultFtlDir;
+    private        String                             ftlFileName;
+    private        File                               ftlJsonDataFile;
+    private        String                             pdfFontName;
+    private        boolean                            isUseChrome;
     private        FreeMarkerKeyValue<String, String> ftlKeyVal = new FreeMarkerKeyValue<>();
     
     private PDFResource() {
-        String resPath = null;
-        try {
-            resPath = new File(ContinueCreatePDF.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile().getPath() + separator + "resources" + separator;
-            if (!new File(resPath).exists()) {
-                resPath = System.getProperty("user.home") + separator + "Desktop" + separator + "resources" + separator;
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        resourcesPath = resPath;
+        String resPath = System.getProperty("user.home") + separator + "Desktop" + separator + "resources" + separator;
+        resourcesDir = new File(resPath);
         initResources();
     }
     
@@ -50,74 +41,85 @@ public class PDFResource {
     }
     
     public void initResources() {
-        resultHtmlDir = resourcesPath + "result" + separator + "html" + separator;
-        resultPdfDir = resourcesPath + "result" + separator + "pdf" + separator;
-        resultFtlDir = resourcesPath + "result" + separator + "ftl" + separator;
-        htmlSourcePath = resourcesPath + "source" + separator + "html" + separator;
-        ftlJsonDataPath = resourcesPath + "data" + separator + "data.json";
+        initFileAndDirectory();
         pdfFontName = "msjhbd.ttf";
         isUseChrome = false;
         JSONObject ftlJsonData = readFtlJsonData();
         setDefaultCssAndImagesPath(ftlJsonData);
         ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
-        htmlSourceFileName = Util.getFirstFileNameInDirectory(new File(htmlSourcePath)).orElse("source.html");
-        ftlFileName = Util.getFileNameWithoutExtension(htmlSourceFileName) + ".ftl";
+        sourceHtmlName = Util.getFirstFileNameInDirectory(sourceHtmlDir).orElse("source.html");
+        ftlFileName = Util.getFileNameWithoutExtension(sourceHtmlName) + ".ftl";
+    }
+    
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void initFileAndDirectory() {
+        ftlJsonDataFile = new File(new File(resourcesDir, "data"), "data.json");
+        sourceHtmlDir = new File(resourcesDir, "source_html");
+        resultFtlDir = new File(resourcesDir, "ftl");
+        resultHtmlDir = new File(resourcesDir, "html");
+        resultPdfDir = new File(resourcesDir, "pdf");
+        
+        resourcesDir.mkdirs();
+        sourceHtmlDir.mkdir();
+        resultFtlDir.mkdir();
+        resultHtmlDir.mkdir();
+        resultPdfDir.mkdir();
+        ftlJsonDataFile.getParentFile().mkdir();
     }
     
     public JSONObject readFtlJsonData() {
-        File jsonFile = new File(ftlJsonDataPath);
-        return jsonFile.exists()
-               ? JSONObject.fromObject(Util.readeFile(jsonFile))
+        return ftlJsonDataFile.exists()
+               ? JSONObject.fromObject(Util.readeFile(ftlJsonDataFile))
                : new JSONObject();
     }
     
     void setDefaultCssAndImagesPath(JSONObject jsonObj) {
         Object cssPath = jsonObj.get("cssPath");
         if (cssPath == null) {
-            jsonObj.element("cssPath", "file:///" + htmlSourcePath.replaceAll("\\\\", "/") + "css");
+            jsonObj.element("cssPath", "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "css");
         }
         Object imagePath = jsonObj.get("imgPath");
         if (imagePath == null) {
-            jsonObj.element("imagePath", "file:///" + htmlSourcePath.replaceAll("\\\\", "/") + "images");
+            jsonObj.element("imagePath", "file:///" + Util.slashFilePath(sourceHtmlDir) + "/" + "images");
         }
     }
     
     public boolean cleanResources() {
-        boolean resultPdfDir = Util.cleanDirectory(new File(this.resultPdfDir));
-        boolean resultHtmlDir = Util.cleanDirectory(new File(this.resultHtmlDir));
-        boolean ftlDir = Util.cleanDirectory(new File(resultFtlDir));
+        boolean resultPdfDir = Util.cleanDirectory(this.resultPdfDir);
+        boolean resultHtmlDir = Util.cleanDirectory(this.resultHtmlDir);
+        boolean ftlDir = Util.cleanDirectory(resultFtlDir);
         return resultPdfDir && resultHtmlDir && ftlDir;
     }
     
-    public String getResourcesPath() {
-        return resourcesPath;
+    public File getResourcesDir() {
+        return resourcesDir;
     }
     
-    public void setResourcesPath(String resourcesPath) {
-        this.resourcesPath = resourcesPath;
+    public void setResourcesDir(File resourcesDir) {
+        this.resourcesDir = resourcesDir;
     }
     
-    public String getResultHtmlDir() {
+    public File getResultHtmlDir() {
         return resultHtmlDir;
     }
     
-    public void setResultHtmlDir(String resultHtmlDir) {
+    public void setResultHtmlDir(File resultHtmlDir) {
         this.resultHtmlDir = resultHtmlDir;
     }
     
-    public String getResultPdfDir() {
+    public File getResultPdfDir() {
         return resultPdfDir;
     }
     
-    public void setResultPdfDir(String resultPdfDir) {
+    public void setResultPdfDir(File resultPdfDir) {
         this.resultPdfDir = resultPdfDir;
     }
     
-    public String getResultFtlDir() {
+    public File getResultFtlDir() {
         return resultFtlDir;
     }
     
-    public void setResultFtlDir(String ftlPath) {
+    public void setResultFtlDir(File ftlPath) {
         this.resultFtlDir = ftlPath;
     }
     
@@ -129,20 +131,20 @@ public class PDFResource {
         this.ftlFileName = ftlFileName;
     }
     
-    public String getHtmlSourcePath() {
-        return htmlSourcePath;
+    public File getSourceHtmlDir() {
+        return sourceHtmlDir;
     }
     
-    public void setHtmlSourcePath(String htmlSourcePath) {
-        this.htmlSourcePath = htmlSourcePath;
+    public void setSourceHtmlDir(File sourceHtmlDir) {
+        this.sourceHtmlDir = sourceHtmlDir;
     }
     
-    public String getFtlJsonDataPath() {
-        return ftlJsonDataPath;
+    public File getFtlJsonDataFile() {
+        return ftlJsonDataFile;
     }
     
-    public void setFtlJsonDataPath(String ftlJsonDataPath) {
-        this.ftlJsonDataPath = ftlJsonDataPath;
+    public void setFtlJsonDataFile(File ftlJsonDataFile) {
+        this.ftlJsonDataFile = ftlJsonDataFile;
     }
     
     public FreeMarkerKeyValue<String, String> getFtlKeyVal() {
@@ -153,12 +155,12 @@ public class PDFResource {
         this.ftlKeyVal = ftlKeyVal;
     }
     
-    public String getHtmlSourceFileName() {
-        return htmlSourceFileName;
+    public String getSourceHtmlName() {
+        return sourceHtmlName;
     }
     
-    public void setHtmlSourceFileName(String htmlSourceFileName) {
-        this.htmlSourceFileName = htmlSourceFileName;
+    public void setSourceHtmlName(String sourceHtmlName) {
+        this.sourceHtmlName = sourceHtmlName;
     }
     
     public String getPdfFontName() {

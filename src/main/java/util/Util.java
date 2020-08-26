@@ -1,7 +1,6 @@
 package util;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
@@ -14,6 +13,10 @@ import java.util.concurrent.*;
  * @since 2018/10/22
  */
 public class Util {
+    public static String slashFilePath(File file) {
+        return file.getAbsolutePath().replaceAll("\\\\", "/");
+    }
+    
     public static String readeFile(File file) {
         return readeFile(file, 0);
     }
@@ -76,10 +79,6 @@ public class Util {
 
     public static String getFileNameWithoutExtension(String fileName) {
         return fileName.contains(".") ? fileName.split("\\.")[0] : fileName;
-    }
-
-    public static File getFileFormFileURI(String uri) {
-        return new File(uri.replaceFirst("file:///", ""));
     }
 
     public static void sleep(long milliseconds) {
