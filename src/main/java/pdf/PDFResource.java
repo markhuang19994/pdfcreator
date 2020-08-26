@@ -91,7 +91,7 @@ public class PDFResource {
             }
         }
         if (data.size() > 0) {
-            System.err.println("data:" + data);
+            System.out.println("data:" + data);
         }
         return data;
     }

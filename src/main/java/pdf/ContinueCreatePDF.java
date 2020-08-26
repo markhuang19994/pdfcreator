@@ -103,8 +103,8 @@ public class ContinueCreatePDF {
                 template.process(ftlKeyVal, stringWriter);
                 final FreeMarkerKeyValue<String, String> kv = pdfResource.getFtlKeyVal();
                 kv.resetUnUseKey();
-                System.err.println("FTL to HTML success!");
-                System.err.println("Not used keys:" + kv.getUnUseKey().toString());
+                System.out.println("Ftl to html success!");
+                System.out.println("Not used keys:" + kv.getUnUseKey().toString());
             } catch (IOException | TemplateException e) {
                 e.printStackTrace();
             }
@@ -126,8 +126,8 @@ public class ContinueCreatePDF {
             iTextRenderer.setDocument(document, null);
             iTextRenderer.layout();
             iTextRenderer.createPDF(new FileOutputStream(dest));
-            System.err.println("HTML to PDF success!");
-            System.err.println("==================================================================\n\n");
+            System.out.println("Html to pdf success!");
+            System.out.println("==================================================================\n\n");
         } catch (Exception e) {
             e.printStackTrace();
         }

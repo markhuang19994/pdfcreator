@@ -29,7 +29,7 @@ public class Main {
         ActionAnalysis actionAnalysis = ActionAnalysis.getInstance(args);
         Map<String, List<String>> actionMap = actionAnalysis.getActionMap();
         PDFResource pdfResource = PDFResource.getInstance();
-        System.err.println(getVersion() + "\n");
+        System.out.println(getVersion() + "\n");
 
         actionAnalysis.getActionFirstParam("-r").ifPresent(param -> {
             pdfResource.setResourcesDir(new File(param));
@@ -46,12 +46,12 @@ public class Main {
 
         actionAnalysis.getActionFirstParam("-font").ifPresent(fontName -> {
             pdfResource.setPdfFontName(fontName);
-            System.out.printf("PDF使用字體: %s\n",fontName);
+            System.out.printf("Create pdf use font: %s\n",fontName);
         });
 
         if (actionMap.containsKey("-clean")) {
             boolean b = pdfResource.cleanResources();
-            if (b) System.err.println("resources資料清除成功");
+            if (b) System.out.println("resources dir clear success");
         }
 
         if (actionMap.containsKey("-g")) {

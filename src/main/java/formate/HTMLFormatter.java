@@ -64,7 +64,7 @@ public class HTMLFormatter {
 
         //輸出ftl檔案
         Util.writeFile(new File(pdfResource.getResultFtlDir(), pdfResource.getFtlFileName()), source);
-        System.err.println("HTML to FTL 轉換完成!");
+        System.out.println("HTML to FTL 轉換完成!");
     }
 
     /**
