@@ -33,11 +33,11 @@ public class Main {
 
         ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResource);
         HTMLFormatter htmlFormatter = HTMLFormatter.getInstance(pdfResource);
-        System.out.printf("資源目錄:%s\n", pdfResource.getResourcesDir());
-        System.out.printf("HTML源目錄:%s\n", pdfResource.getSourceHtmlDir());
-        System.out.printf("FTL源目錄:%s\n", pdfResource.getResultFtlDir());
-        System.out.printf("HTML轉FTL產出檔案:%s\n", pdfResource.getResultHtmlDir() + separator + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".html");
-        System.out.printf("HTML轉PDF產出檔案:%s\n", pdfResource.getResultPdfDir() + separator + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".pdf");
+//        System.out.printf("資源目錄:%s\n", pdfResource.getResourcesDir());
+//        System.out.printf("HTML源目錄:%s\n", pdfResource.getSourceHtmlDir());
+//        System.out.printf("FTL源目錄:%s\n", pdfResource.getResultFtlDir());
+//        System.out.printf("HTML轉FTL產出檔案:%s\n", pdfResource.getResultHtmlDir() + separator + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".html");
+//        System.out.printf("HTML轉PDF產出檔案:%s\n", pdfResource.getResultPdfDir() + separator + Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".pdf");
 
         actionAnalysis.getActionFirstParam("-font").ifPresent(fontName -> {
             pdfResource.setPdfFontName(fontName);

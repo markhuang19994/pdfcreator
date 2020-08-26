@@ -101,7 +101,10 @@ public class ContinueCreatePDF {
             try {
                 Writer stringWriter = new FileWriter(resultHtmlFile);
                 template.process(ftlKeyVal, stringWriter);
-                System.err.println("FTL to HTML 轉換完成!");
+                final FreeMarkerKeyValue<String, String> kv = pdfResource.getFtlKeyVal();
+                kv.resetUnUseKey();
+                System.err.println("FTL to HTML success!");
+                System.err.println("Not used keys:" + kv.toString());
             } catch (IOException | TemplateException e) {
                 e.printStackTrace();
             }
@@ -123,7 +126,7 @@ public class ContinueCreatePDF {
             iTextRenderer.setDocument(document, null);
             iTextRenderer.layout();
             iTextRenderer.createPDF(new FileOutputStream(dest));
-            System.err.println("PDF 產生完成!");
+            System.err.println("HTML to PDF success!");
         } catch (Exception e) {
             e.printStackTrace();
         }
