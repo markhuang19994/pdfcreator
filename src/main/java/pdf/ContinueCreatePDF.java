@@ -48,7 +48,7 @@ public class ContinueCreatePDF {
         @Override
         public void onChange(FileEvent event) {
             File currentFile = event.getCurrentTarget();
-            if (ftlJsonDataFile.getAbsolutePath().equalsIgnoreCase(currentFile.getAbsolutePath())) {
+            if (ftlJsonDataFile.getParentFile().getAbsolutePath().equalsIgnoreCase(currentFile.getAbsolutePath())) {
                 JSONObject ftlJsonData = pdfResource.readFtlJsonData();
                 FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
                 ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
@@ -78,7 +78,7 @@ public class ContinueCreatePDF {
         FileManager manager = FileManager.getInstance();
         manager.addListener(new File(pdfResource.getSourceHtmlDir(), pdfResource.getSourceHtmlName()), sourceHtmlResourceListener);
         manager.addListener(ftlFile, ftlResourceListener);
-        manager.addListener(ftlJsonDataFile, ftlResourceListener);
+        manager.addListener(ftlJsonDataFile.getParentFile(), ftlResourceListener);
         manager.addListener(resultHtmlFile, resultHtmlListener);
         manager.addListener(new File(Util.rmFileProtocol(pdfResource.getCssPath())), ftlResourceListener);
         manager.addListener(new File(Util.rmFileProtocol(pdfResource.getImagePath())), ftlResourceListener);
@@ -104,7 +104,7 @@ public class ContinueCreatePDF {
                 final FreeMarkerKeyValue<String, String> kv = pdfResource.getFtlKeyVal();
                 kv.resetUnUseKey();
                 System.err.println("FTL to HTML success!");
-                System.err.println("Not used keys:" + kv.toString());
+                System.err.println("Not used keys:" + kv.getUnUseKey().toString());
             } catch (IOException | TemplateException e) {
                 e.printStackTrace();
             }
@@ -127,6 +127,7 @@ public class ContinueCreatePDF {
             iTextRenderer.layout();
             iTextRenderer.createPDF(new FileOutputStream(dest));
             System.err.println("HTML to PDF success!");
+            System.err.println("==================================================================\n\n");
         } catch (Exception e) {
             e.printStackTrace();
         }

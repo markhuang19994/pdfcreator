@@ -4,7 +4,12 @@ import pdf.ContinueCreatePDF;
 import pdf.PDFResource;
 import util.Util;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +29,13 @@ public class Main {
         ActionAnalysis actionAnalysis = ActionAnalysis.getInstance(args);
         Map<String, List<String>> actionMap = actionAnalysis.getActionMap();
         PDFResource pdfResource = PDFResource.getInstance();
-        System.out.println(getVersion());
+        System.err.println(getVersion() + "\n");
 
         actionAnalysis.getActionFirstParam("-r").ifPresent(param -> {
             pdfResource.setResourcesDir(new File(param));
             pdfResource.initResources();
         });
-
+        
         ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResource);
         HTMLFormatter htmlFormatter = HTMLFormatter.getInstance(pdfResource);
 //        System.out.printf("資源目錄:%s\n", pdfResource.getResourcesDir());

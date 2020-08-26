@@ -4,6 +4,8 @@ import freemarker.FreeMarkerKeyValue;
 import net.sf.json.JSONObject;
 import util.Util;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.io.File;
 
 import static java.io.File.separator;
@@ -16,16 +18,16 @@ import static java.io.File.separator;
  * @since 2018/10/22
  */
 public class PDFResource {
-    private        File                               resourcesDir;
-    private        File                               sourceHtmlDir;
-    private        String                             sourceHtmlName;
-    private        File                               resultHtmlDir;
-    private        File                               resultPdfDir;
-    private        File                               resultFtlDir;
-    private        String                             ftlFileName;
-    private        File                               ftlJsonDataFile;
-    private        String                             pdfFontName;
-    private        FreeMarkerKeyValue<String, String> ftlKeyVal = new FreeMarkerKeyValue<>();
+    private File                               resourcesDir;
+    private File                               sourceHtmlDir;
+    private String                             sourceHtmlName;
+    private File                               resultHtmlDir;
+    private File                               resultPdfDir;
+    private File                               resultFtlDir;
+    private String                             ftlFileName;
+    private File                               ftlJsonDataFile;
+    private String                             pdfFontName;
+    private FreeMarkerKeyValue<String, String> ftlKeyVal = new FreeMarkerKeyValue<>();
     
     private PDFResource() {
         String resPath = System.getProperty("user.home") + separator + "Desktop" + separator + "resources" + separator;
@@ -52,7 +54,6 @@ public class PDFResource {
     
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initFileAndDirectory() {
-        ftlJsonDataFile = new File(new File(resourcesDir, "data"), "data.json");
         sourceHtmlDir = new File(resourcesDir, "source_html");
         resultFtlDir = new File(resourcesDir, "ftl");
         resultHtmlDir = new File(resourcesDir, "html");
@@ -63,13 +64,36 @@ public class PDFResource {
         resultFtlDir.mkdir();
         resultHtmlDir.mkdir();
         resultPdfDir.mkdir();
+        
+        ftlJsonDataFile = new File(new File(resourcesDir, "data"), "data.json");
         ftlJsonDataFile.getParentFile().mkdir();
     }
     
     public JSONObject readFtlJsonData() {
-        return ftlJsonDataFile.exists()
-               ? JSONObject.fromObject(Util.readeFile(ftlJsonDataFile))
-               : new JSONObject();
+        final JSONObject data = new JSONObject();
+        if (ftlJsonDataFile.exists()) {
+            String jsonFileContent = Util.readeFile(ftlJsonDataFile);
+            JSONObject jsonObject =  JSONObject.fromObject(jsonFileContent);
+            jsonObject.forEach((k , v) -> data.put(k, v));
+        }
+    
+        File dataJs = new File(ftlJsonDataFile.getParentFile(), "data.js");
+        if (dataJs.exists()) {
+            try {
+                String jsonFileContent = Util.readeFile(dataJs);
+                ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+                ScriptEngine nashorn = scriptEngineManager.getEngineByName("nashorn");
+                Object eval = nashorn.eval(jsonFileContent + "\n var json = JSON.stringify(data)\n json");
+                JSONObject jsonObject = JSONObject.fromObject(eval);
+                jsonObject.forEach((k , v) -> data.put(k, v));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (data.size() > 0) {
+            System.err.println("data:" + data);
+        }
+        return data;
     }
     
     public boolean cleanResources() {
