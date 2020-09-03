@@ -2,7 +2,9 @@ package freemarker;
 
 import pdf.PDFResource;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 本類別主要用於紀錄ftl轉換html時使用過的key
@@ -14,20 +16,23 @@ import java.util.*;
  * @since 2018/3/2
  */
 public class FreeMarkerKeyValue<K, V> extends HashMap<K, V> {
-    private Set<K> unUseKey = new HashSet<>();
+    private final Set<K> unUseKey = new HashSet<>();
     
     @SuppressWarnings("unchecked")
     @Override
     public V get(Object key) {
         V result = (V) super.get(key);
+        
         final PDFResource pdfResource = PDFResource.getInstance();
-        if ("cssPath".equals(key)) {
-            result = (V) pdfResource.getCssPath();
-        } else if ("imagePath".equals(key)) {
-            result = (V) pdfResource.getImagePath();
+        if (result == null) {
+            if ("cssPath".equals(key)) {
+                result = (V) pdfResource.getCssPath();
+            } else if ("imagePath".equals(key) || "imgPath".equals(key)) {
+                result = (V) pdfResource.getImagePath();
+            }
         }
-    
-        unUseKey.remove(key);
+        
+        unUseKey.remove((K) key);
         return result;
     }
     

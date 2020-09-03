@@ -7,6 +7,7 @@ import util.Util;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.File;
+import java.util.Scanner;
 
 import static java.io.File.separator;
 
@@ -24,7 +25,7 @@ public class PDFResource {
     private File                               resultHtmlDir;
     private File                               resultPdfDir;
     private File                               resultFtlDir;
-    private String                             ftlFileName;
+    private File                               ftlFile;
     private File                               ftlJsonDataFile;
     private String                             pdfFontName;
     private FreeMarkerKeyValue<String, String> ftlKeyVal = new FreeMarkerKeyValue<>();
@@ -44,11 +45,30 @@ public class PDFResource {
     
     public void initResources() {
         initFileAndDirectory();
-        pdfFontName = "msjhbd.ttf";
+        pdfFontName = "MSJH.TTF";
         JSONObject ftlJsonData = readFtlJsonData();
         ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
         sourceHtmlName = Util.getFirstFileNameInDirectory(sourceHtmlDir).orElse("source.html");
-        ftlFileName = Util.getFileNameWithoutExtension(sourceHtmlName) + ".ftl";
+        
+        File[] ftlFiles = resultFtlDir.listFiles(f -> f.isFile() && f.getName().matches("^.*\\.ftl$"));
+        
+        if (ftlFiles == null || ftlFiles.length == 0) {
+            throw new RuntimeException("Ftl file not found.");
+        }
+        
+        File ftlFile = ftlFiles[0];
+        if (ftlFiles.length > 1) {
+            System.out.println("there are several ftl files...");
+            for (int i = 0; i < ftlFiles.length; i++) {
+                System.out.printf("\t%s) %s%n", (i + 1), ftlFiles[i].getName());
+            }
+            Scanner sca = new Scanner(System.in);
+            System.out.print("please choose one: ");
+            
+            int chooseIdx = Integer.parseInt(sca.nextLine().trim());
+            ftlFile = ftlFiles[chooseIdx - 1];
+        }
+        this.ftlFile = ftlFile;
     }
     
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -72,10 +92,10 @@ public class PDFResource {
         final JSONObject data = new JSONObject();
         if (ftlJsonDataFile.exists()) {
             String jsonFileContent = Util.readeFile(ftlJsonDataFile);
-            JSONObject jsonObject =  JSONObject.fromObject(jsonFileContent);
-            jsonObject.forEach((k , v) -> data.put(k, v));
+            JSONObject jsonObject = JSONObject.fromObject(jsonFileContent);
+            jsonObject.forEach((k, v) -> data.put(k, v));
         }
-    
+        
         File dataJs = new File(ftlJsonDataFile.getParentFile(), "data.js");
         if (dataJs.exists()) {
             try {
@@ -84,7 +104,7 @@ public class PDFResource {
                 ScriptEngine nashorn = scriptEngineManager.getEngineByName("nashorn");
                 Object eval = nashorn.eval(jsonFileContent + "\n var json = JSON.stringify(data)\n json");
                 JSONObject jsonObject = JSONObject.fromObject(eval);
-                jsonObject.forEach((k , v) -> data.put(k, v));
+                jsonObject.forEach((k, v) -> data.put(k, v));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -134,12 +154,12 @@ public class PDFResource {
         this.resultFtlDir = ftlPath;
     }
     
-    public String getFtlFileName() {
-        return ftlFileName;
+    public File getFtlFile() {
+        return ftlFile;
     }
     
-    public void setFtlFileName(String ftlFileName) {
-        this.ftlFileName = ftlFileName;
+    public void setFtlFile(File ftlFile) {
+        this.ftlFile = ftlFile;
     }
     
     public File getSourceHtmlDir() {

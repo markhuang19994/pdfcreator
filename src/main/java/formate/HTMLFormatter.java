@@ -14,7 +14,7 @@ import java.util.List;
  * @since 2018/10/22
  */
 public class HTMLFormatter {
-    private PDFResource pdfResource;
+    private final PDFResource pdfResource;
 
     private HTMLFormatter(PDFResource pdfResource) {
         this.pdfResource = pdfResource;
@@ -63,8 +63,8 @@ public class HTMLFormatter {
         source = source.replaceAll("(\n\\s*\n){2,}","\n");
 
         //輸出ftl檔案
-        Util.writeFile(new File(pdfResource.getResultFtlDir(), pdfResource.getFtlFileName()), source);
-        System.out.println("HTML to FTL 轉換完成!");
+        Util.writeFile(pdfResource.getFtlFile(), source);
+        System.out.println("html to ftl success!");
     }
 
     /**

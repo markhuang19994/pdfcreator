@@ -17,7 +17,6 @@ import util.Util;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 import static java.io.File.separator;
 
@@ -38,8 +37,8 @@ public class ContinueCreatePDF {
     public ContinueCreatePDF(PDFResource pdfResource) {
         this.pdfResource = pdfResource;
         ftlJsonDataFile = pdfResource.getFtlJsonDataFile();
-        ftlFile = new File(pdfResource.getResultFtlDir(), pdfResource.getFtlFileName());
-        resultHtmlFile = new File(pdfResource.getResultHtmlDir(), Util.getFileNameWithoutExtension(pdfResource.getFtlFileName()) + ".html");
+        ftlFile = pdfResource.getFtlFile();
+        resultHtmlFile = new File(pdfResource.getResultHtmlDir(), Util.getFileNameWithoutExtension(pdfResource.getFtlFile().getName()) + ".html");
         htmlFormatter = HTMLFormatter.getInstance(pdfResource);
     }
     
@@ -76,7 +75,6 @@ public class ContinueCreatePDF {
     
     public void createPDFWhenResourceChange() {
         FileManager manager = FileManager.getInstance();
-        manager.addListener(new File(pdfResource.getSourceHtmlDir(), pdfResource.getSourceHtmlName()), sourceHtmlResourceListener);
         manager.addListener(ftlFile, ftlResourceListener);
         manager.addListener(ftlJsonDataFile.getParentFile(), ftlResourceListener);
         manager.addListener(resultHtmlFile, resultHtmlListener);
@@ -95,7 +93,7 @@ public class ContinueCreatePDF {
     private void createHTML() {
         FreeMarkerTemplate freeMarkerTemplate = FreeMarkerTemplate.getInstance();
         String ftlDirPath = pdfResource.getResultFtlDir().getAbsolutePath();
-        String ftlFileName = pdfResource.getFtlFileName();
+        String ftlFileName = pdfResource.getFtlFile().getName();
         freeMarkerTemplate.getTemplate(ftlDirPath, ftlFileName).ifPresent(template -> {
             try {
                 Writer stringWriter = new FileWriter(resultHtmlFile);
