@@ -27,6 +27,7 @@
 5.執行方法2 for linux:    
    >在jar根目錄執行:    
       ```
+        chmod +x ./bin/cpdf.sh
         sudo ln -s $(pwd)/cpdf.sh /usr/bin/cpdf
       ```
 
