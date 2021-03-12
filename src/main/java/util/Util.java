@@ -192,4 +192,10 @@ public class Util {
         }
         return null;
     }
+    
+    public static String normalizeFilePath(String filePath) {
+        return filePath.startsWith("~")
+               ? filePath.replaceFirst("~", System.getProperty("user.home"))
+               : filePath;
+    }
 }

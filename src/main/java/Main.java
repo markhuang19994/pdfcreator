@@ -4,6 +4,7 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import pdf.ContinueCreatePDF;
 import pdf.PDFResource;
+import util.Util;
 
 import java.io.File;
 import java.net.URL;
@@ -28,7 +29,7 @@ public class Main {
         System.out.println(getVersion() + "\n");
         
         actionAnalysis.getActionFirstParam("-r").ifPresent(param -> {
-            pdfResource.setResourcesDir(new File(param));
+            pdfResource.setResourcesDir(new File(Util.normalizeFilePath(param)));
         });
     
         boolean isNeedInit = false;
