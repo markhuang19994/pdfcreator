@@ -6,7 +6,7 @@
 
     <groupId>pdf</groupId>
     <artifactId>pdf-creator</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <repositories>
         <repository>
@@ -101,6 +101,10 @@
                     <exclude>**/pup/**/*</exclude>
                 </excludes>
             </resource>
+            <resource>
+                <targetPath>${project.build.directory}/bin</targetPath>
+                <directory>bin</directory>
+            </resource>
         </resources>
         <plugins>
             <plugin>
@@ -154,7 +158,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.0.2</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
@@ -173,6 +177,28 @@
                                     </includes>
                                 </resource>
                             </resources>
+                            <encoding>utf-8</encoding>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>archive</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/archive</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}</directory>
+                                    <includes>
+                                        <include>lib/*</include>
+                                        <include>bin/*</include>
+                                        <include>*.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <encoding>utf-8</encoding>
                         </configuration>
                     </execution>
                 </executions>

@@ -23,8 +23,14 @@
    >可以直接在ide匯入本專案執行     
    >windows用戶可以在other/execute/Windows資料夾下找到pdfc.exe    
    >mac用戶可以在other/execute/Linux資料夾下找到pdfc
-   
-5.PDF閱讀器
+
+5.執行方法2 for linux:    
+   >在jar根目錄執行:    
+      ```
+        sudo ln -s $(pwd)/cpdf.sh /usr/bin/cpdf
+      ```
+
+6.PDF閱讀器:
    >☆本專案需搭配支援刷新的PDF閱讀器使用    
    >>windows:https://www.sumatrapdfreader.org/download-free-pdf-viewer.html/    
    >>mac:https://skim-app.sourceforge.io/    
