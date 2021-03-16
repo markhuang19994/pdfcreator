@@ -39,4 +39,5 @@
    >>>https://skim-app.sourceforge.io/manual/SkimHelp_14.html    
    >>>https://tex.stackexchange.com/questions/43057/macosx-pdf-viewer-automatic-reload-on-file-modification
    
-   
+7.更新方法   
+  > mvn clean package > target > archive    

@@ -11,30 +11,30 @@ import java.util.List;
  * @since 2018/10/23
  */
 public class FileManager {
-    private static FileManager fileManager = new FileManager();
-    private static FileEventSource fileEventSource = FileEventSource.getInstance();
+    private static final FileManager     FILE_MANAGER      = new FileManager();
+    private static final FileEventSource FILE_EVENT_SOURCE = FileEventSource.getInstance();
 
     private FileManager() {
     }
 
     public static FileManager getInstance() {
-        return fileManager;
+        return FILE_MANAGER;
     }
 
     public void addListener(File file, FileListener listener) {
-        fileEventSource.addFileListener(file, listener);
+        FILE_EVENT_SOURCE.addFileListener(file, listener);
     }
 
     public void addListener(List<File> files, FileListener listener) {
-        fileEventSource.addFileListener(files, listener);
+        FILE_EVENT_SOURCE.addFileListener(files, listener);
     }
 
     public void removeListener(File file) {
-        fileEventSource.removeFileListener(file);
+        FILE_EVENT_SOURCE.removeFileListener(file);
     }
 
     public void removeListener(List<File> files) {
-        fileEventSource.removeFileListener(files);
+        FILE_EVENT_SOURCE.removeFileListener(files);
     }
 
     public void getFileInProject(){}

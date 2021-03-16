@@ -7,6 +7,9 @@ import util.Util;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 import static java.io.File.separator;
@@ -21,7 +24,6 @@ import static java.io.File.separator;
 public class PDFResource {
     private File                               resourcesDir;
     private File                               sourceHtmlDir;
-    private String                             sourceHtmlName;
     private File                               resultHtmlDir;
     private File                               resultPdfDir;
     private File                               resultFtlDir;
@@ -48,8 +50,34 @@ public class PDFResource {
         pdfFontName = "MSJH.TTF";
         JSONObject ftlJsonData = readFtlJsonData();
         ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
-        sourceHtmlName = Util.getFirstFileNameInDirectory(sourceHtmlDir).orElse("source.html");
-        
+        this.ftlFile = initFtlFile();
+    }
+    
+    public List<File> getSourceHtmlFiles() {
+        File[] htmlFiles = sourceHtmlDir.listFiles(f -> f.isFile() && f.getName().matches("^.*\\.html$"));
+    
+        if (htmlFiles == null || htmlFiles.length == 0) {
+            return null;
+        }
+    
+        List<File> chooseHtmlFiles = new ArrayList<>();
+        if (htmlFiles.length > 1) {
+            System.out.println("there are several html files...");
+            for (int i = 0; i < htmlFiles.length; i++) {
+                System.out.printf("\t%s) %s%n", (i + 1), htmlFiles[i].getName());
+            }
+            Scanner sca = new Scanner(System.in);
+            System.out.print("please choose one or more (split by ','): ");
+    
+            for (String idx : sca.nextLine().split(",")) {
+                int chooseIdx = Integer.parseInt(idx.trim());
+                chooseHtmlFiles.add(htmlFiles[chooseIdx - 1]);
+            }
+        }
+        return chooseHtmlFiles;
+    }
+    
+    private File initFtlFile() {
         File[] ftlFiles = resultFtlDir.listFiles(f -> f.isFile() && f.getName().matches("^.*\\.ftl$"));
         
         if (ftlFiles == null || ftlFiles.length == 0) {
@@ -68,7 +96,7 @@ public class PDFResource {
             int chooseIdx = Integer.parseInt(sca.nextLine().trim());
             ftlFile = ftlFiles[chooseIdx - 1];
         }
-        this.ftlFile = ftlFile;
+        return ftlFile;
     }
     
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -184,14 +212,6 @@ public class PDFResource {
     
     public void setFtlKeyVal(FreeMarkerKeyValue<String, String> ftlKeyVal) {
         this.ftlKeyVal = ftlKeyVal;
-    }
-    
-    public String getSourceHtmlName() {
-        return sourceHtmlName;
-    }
-    
-    public void setSourceHtmlName(String sourceHtmlName) {
-        this.sourceHtmlName = sourceHtmlName;
     }
     
     public String getPdfFontName() {

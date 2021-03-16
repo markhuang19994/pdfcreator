@@ -7,10 +7,14 @@ import pdf.PDFResource;
 import util.Util;
 
 import java.io.File;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.UUID;
 
 /**
  * args解析順序 version -> help -> r -> h -> f -> clean -> g -> c
@@ -22,15 +26,16 @@ import java.util.Scanner;
  * @since 2018/10/19
  */
 public class Main {
-    public static void main(String[] args) throws ZipException {
+    public static void main(String[] args) throws ZipException, IOException {
         ActionAnalysis actionAnalysis = ActionAnalysis.getInstance(args);
         Map<String, List<String>> actionMap = actionAnalysis.getActionMap();
         PDFResource pdfResource = PDFResource.getInstance();
         System.out.println(getVersion() + "\n");
         
-        actionAnalysis.getActionFirstParam("-r").ifPresent(param -> {
-            pdfResource.setResourcesDir(new File(Util.normalizeFilePath(param)));
-        });
+        actionAnalysis.getActionFirstParam("-r").ifPresent(param ->
+                pdfResource.setResourcesDir(new File(Util.normalizeFilePath(param))));
+    
+        System.out.println("resource dir:" + pdfResource.getResourcesDir().getAbsolutePath());
     
         boolean isNeedInit = false;
         if (!pdfResource.getResourcesDir().exists()) {
@@ -46,18 +51,19 @@ public class Main {
             if (!initDir.exists() && !initDir.mkdirs()) {
                 throw new RuntimeException("init dir not found.");
             }
-            
-            final URL resource = Main.class.getClassLoader().getResource("res/res.zip");
+    
+            final InputStream resource = Main.class.getClassLoader().getResourceAsStream("res/res.zip");
             if (resource != null) {
-                final File resZip = new File(resource.getFile());
-                if (resZip.exists() && resZip.isFile()) {
-                    unZipFiles(resZip, initDir, null);
-                } else {
-                    throw new RuntimeException("res.zip is not exist or not a file.");
-                }
+                byte[] resourceBytes = Util.readAllBytes(resource);
+                String fileName = UUID.randomUUID().toString().replace("-", "") + ".zip";
+                File resZip = new File(System.getProperty("java.io.tmpdir"), fileName);
+                resZip.deleteOnExit();
+                Files.write(resZip.toPath(), resourceBytes, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+                Util.unZipFiles(resZip, initDir, null);
             } else {
                 throw new RuntimeException("res/res.zip not found in classpath.");
             }
+            
             System.out.println("init success.");
             return;
         }
@@ -76,7 +82,9 @@ public class Main {
         
         pdfResource.initResources();
         if (actionMap.containsKey("-g")) {
-            htmlFormatter.htmlToFtlFormat();
+            for (File sourceHtmlFile : pdfResource.getSourceHtmlFiles()) {
+                htmlFormatter.htmlToFtlFormat(sourceHtmlFile);
+            }
         }
         
         ContinueCreatePDF continueCreatePDF = new ContinueCreatePDF(pdfResource);
@@ -87,15 +95,6 @@ public class Main {
     }
     
     private static String getVersion() {
-        return String.format("PDF creator version:%s", "1.1.5");
-    }
-    
-    public static File unZipFiles(File sourceFile, File destFile, String password) throws ZipException {
-        final ZipFile zipFile = new ZipFile(sourceFile);
-        if (password != null && zipFile.isEncrypted()) {
-            zipFile.setPassword(password);
-        }
-        zipFile.extractAll(destFile.getAbsolutePath());
-        return destFile;
+        return String.format("PDF creator version:%s", "1.2.0");
     }
 }

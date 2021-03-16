@@ -10,7 +10,7 @@ import java.util.*;
  * @since 2018/10/29
  */
 public class ActionAnalysis {
-    private Map<String, List<String>> actionMap = new HashMap<>();
+    private final Map<String, List<String>> actionMap = new HashMap<>();
 
     private ActionAnalysis(String[] args) {
         List<String> tempParams = null;

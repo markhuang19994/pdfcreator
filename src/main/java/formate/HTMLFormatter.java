@@ -27,9 +27,9 @@ public class HTMLFormatter {
     /**
      * 將html轉換為ftl格式
      */
-    public void htmlToFtlFormat() {
+    public void htmlToFtlFormat(File sourceHtml) {
         //讀取檔案
-        String source = Util.readeFile(new File(pdfResource.getSourceHtmlDir(), pdfResource.getSourceHtmlName()));
+        String source = Util.readeFile(sourceHtml);
         //移除註解
         source = source.replaceAll("<!--((.|\n|\r|\t)*?)-->", "");
         //移除script標籤

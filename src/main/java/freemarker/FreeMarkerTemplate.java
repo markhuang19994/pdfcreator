@@ -17,11 +17,11 @@ import java.util.Optional;
  * @since 2018/2/15
  */
 public class FreeMarkerTemplate {
-    private static FreeMarkerTemplate freeMarkerTemplate = new FreeMarkerTemplate();
+    private static final FreeMarkerTemplate FREE_MARKER_TEMPLATE = new FreeMarkerTemplate();
     private FreeMarkerTemplate(){}
 
     public static FreeMarkerTemplate getInstance() {
-        return freeMarkerTemplate;
+        return FREE_MARKER_TEMPLATE;
     }
 
     public Optional<Template> getTemplate(String dir, String name) {

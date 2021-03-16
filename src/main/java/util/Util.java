@@ -1,5 +1,8 @@
 package util;
 
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -67,22 +70,6 @@ public class Util {
         return isAllDelete;
     }
     
-    public static Optional<String> getFirstFileNameInDirectory(File dir) {
-        if (!dir.isDirectory()) return Optional.empty();
-        File[] files = dir.listFiles();
-        if (files == null) return Optional.empty();
-        Arrays.sort(files, (f1, f2) -> f1.lastModified() > f2.lastModified()
-                                       ? 1
-                                       : -1);
-        for (File file : files) {
-            if (file.isFile()) {
-                if (file.getName().charAt(0) == '.') continue;
-                return Optional.of(file.getName());
-            }
-        }
-        return Optional.empty();
-    }
-    
     public static String getFileNameWithoutExtension(String fileName) {
         return fileName.contains(".")
                ? fileName.split("\\.")[0]
@@ -97,7 +84,7 @@ public class Util {
         }
     }
     
-    private static List<File> getAllFilesInDirectory(File dir, String fileName) {
+    private static List<File> getAllFilesInDirectory(File dir) {
         File[] files = dir.listFiles();
         if (files != null) {
             return Arrays.asList(files);
@@ -105,7 +92,7 @@ public class Util {
         return null;
     }
     
-    private static Map<String, List<File>> cacheFile = new ConcurrentHashMap<>(3000);
+    private static final Map<String, List<File>> CACHE_FILE = new ConcurrentHashMap<>(3000);
     
     public static List<File> searchFileInDirectory(File dir, String fileName) {
         return searchFileInDirectory(dir, fileName, true);
@@ -116,16 +103,15 @@ public class Util {
         if (fileInCache != null) return fileInCache;
         ExecutorService executor = Executors.newFixedThreadPool(8);
         File emptyFile = new File("$$emptyFile$$");
-        List<Future<?>> futures = new ArrayList<Future<?>>();
+        List<Future<?>> futures = new ArrayList<>();
         BlockingDeque<File> deque = new LinkedBlockingDeque<>();
         List<File> result = new ArrayList<>();
         deque.push(dir);
-        while (true) {
-            if ((deque.isEmpty() && isAllExecutionDone(futures)) || (findFirst && result.size() > 0)) break;
+        while ((!deque.isEmpty() || !isAllExecutionDone(futures)) && (!findFirst || result.size() <= 0)) {
             File innerDir = fileDeqPollFirst(deque);
             if (innerDir == null || emptyFile.getName().equals(innerDir.getName())) continue;
             Future<?> future = executor.submit(() -> {
-                List<File> files = getAllFilesInDirectory(innerDir, fileName);
+                List<File> files = getAllFilesInDirectory(innerDir);
                 List<File> dirFiles = new ArrayList<>();
                 if (files == null || files.isEmpty()) {
                     deque.addLast(emptyFile);
@@ -154,7 +140,7 @@ public class Util {
     }
     
     private static List<File> getFileInCache(File dir, String fileName) {
-        List<File> cacheList = cacheFile.get(fileName);
+        List<File> cacheList = CACHE_FILE.get(fileName);
         List<File> resultList = new ArrayList<>();
         if (cacheList == null) return null;
         for (File file : cacheList) {
@@ -169,12 +155,12 @@ public class Util {
     
     private static void putFileInCache(File file) {
         String fileName = file.getName();
-        List<File> cacheList = cacheFile.get(fileName);
+        List<File> cacheList = CACHE_FILE.get(fileName);
         if (cacheList == null) {
             cacheList = new ArrayList<>();
         }
         cacheList.add(file);
-        cacheFile.put(fileName, cacheList);
+        CACHE_FILE.put(fileName, cacheList);
     }
     
     private static boolean isAllExecutionDone(List<Future<?>> futures) {
@@ -193,9 +179,43 @@ public class Util {
         return null;
     }
     
+    public static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        final int bufLen = 4 * 0x400; // 4KB
+        byte[] buf = new byte[bufLen];
+        int readLen;
+        IOException exception = null;
+        
+        try {
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                while ((readLen = inputStream.read(buf, 0, bufLen)) != -1)
+                    outputStream.write(buf, 0, readLen);
+                
+                return outputStream.toByteArray();
+            }
+        } catch (IOException e) {
+            exception = e;
+            throw e;
+        } finally {
+            if (exception == null) inputStream.close();
+            else try {
+                inputStream.close();
+            } catch (IOException e) {
+                exception.addSuppressed(e);
+            }
+        }
+    }
+    
     public static String normalizeFilePath(String filePath) {
         return filePath.startsWith("~")
                ? filePath.replaceFirst("~", System.getProperty("user.home"))
                : filePath;
+    }
+    
+    public static void unZipFiles(File sourceFile, File destFile, String password) throws ZipException {
+        final ZipFile zipFile = new ZipFile(sourceFile);
+        if (password != null && zipFile.isEncrypted()) {
+            zipFile.setPassword(password);
+        }
+        zipFile.extractAll(destFile.getAbsolutePath());
     }
 }

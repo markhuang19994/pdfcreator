@@ -32,14 +32,12 @@ public class ContinueCreatePDF {
     private final File          ftlFile;
     private final File          resultHtmlFile;
     private final PDFResource   pdfResource;
-    private final HTMLFormatter htmlFormatter;
     
     public ContinueCreatePDF(PDFResource pdfResource) {
         this.pdfResource = pdfResource;
         ftlJsonDataFile = pdfResource.getFtlJsonDataFile();
         ftlFile = pdfResource.getFtlFile();
         resultHtmlFile = new File(pdfResource.getResultHtmlDir(), Util.getFileNameWithoutExtension(pdfResource.getFtlFile().getName()) + ".html");
-        htmlFormatter = HTMLFormatter.getInstance(pdfResource);
     }
     
     @SuppressWarnings("unchecked")
@@ -52,17 +50,8 @@ public class ContinueCreatePDF {
                 FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
                 ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
                 pdfResource.setFtlKeyVal(ftlKeyVal);
-                createHTML();
-            } else {
-                createHTML();
             }
-        }
-    };
-    
-    private final FileListener sourceHtmlResourceListener = new FileListener() {
-        @Override
-        public void onChange(FileEvent event) {
-            htmlFormatter.htmlToFtlFormat();
+            createHTML();
         }
     };
     
