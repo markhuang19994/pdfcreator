@@ -44,13 +44,17 @@ public class ContinueCreatePDF {
     private final FileListener ftlResourceListener = new FileListener() {
         @Override
         public void onChange(FileEvent event) {
-            File currentFile = event.getCurrentTarget();
-            if (ftlJsonDataFile.getParentFile().getAbsolutePath().equalsIgnoreCase(currentFile.getAbsolutePath())) {
-                JSONObject ftlJsonData = pdfResource.readFtlJsonData();
-                FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
-                ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
-                pdfResource.setFtlKeyVal(ftlKeyVal);
-            }
+            createHTML();
+        }
+    };
+    
+    private final FileListener jsonResourceListener = new FileListener() {
+        @Override
+        public void onChange(FileEvent event) {
+            JSONObject ftlJsonData = pdfResource.readFtlJsonData();
+            FreeMarkerKeyValue<String, String> ftlKeyVal = pdfResource.getFtlKeyVal();
+            ftlJsonData.forEach((k, v) -> ftlKeyVal.put(String.valueOf(k), String.valueOf(v)));
+            pdfResource.setFtlKeyVal(ftlKeyVal);
             createHTML();
         }
     };
@@ -65,7 +69,7 @@ public class ContinueCreatePDF {
     public void createPDFWhenResourceChange() {
         FileManager manager = FileManager.getInstance();
         manager.addListener(ftlFile, ftlResourceListener);
-        manager.addListener(ftlJsonDataFile.getParentFile(), ftlResourceListener);
+        manager.addListener(ftlJsonDataFile.getParentFile(), jsonResourceListener);
         manager.addListener(resultHtmlFile, resultHtmlListener);
         manager.addListener(new File(Util.rmFileProtocol(pdfResource.getCssPath())), ftlResourceListener);
         manager.addListener(new File(Util.rmFileProtocol(pdfResource.getImagePath())), ftlResourceListener);
