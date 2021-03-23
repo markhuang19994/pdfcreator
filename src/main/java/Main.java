@@ -31,6 +31,11 @@ public class Main {
         Map<String, List<String>> actionMap = actionAnalysis.getActionMap();
         PDFResource pdfResource = PDFResource.getInstance();
         System.out.println(getVersion() + "\n");
+    
+        if (actionMap.size() == 0 || actionMap.containsKey("-help")) {
+            System.out.println(getHelp());
+            return;
+        }
         
         actionAnalysis.getActionFirstParam("-r").ifPresent(param ->
                 pdfResource.setResourcesDir(new File(Util.normalizeFilePath(param))));
@@ -92,6 +97,16 @@ public class Main {
         if (actionMap.containsKey("-c")) {
             continueCreatePDF.createPDFWhenResourceChange();
         }
+    }
+    
+    private static String getHelp() {
+        return "-g :generate ftl from {resource-root}/source_html or use \"-h\" to figure one" + "\n" +
+                "-c :continue create pdf after {resource-root}/ftl changed or use \"-f\" to figure one" + "\n" +
+                "-clean :clean ftl & html & temp directory" + "\n" +
+                "-r :specific resources root path" + "\n" +
+                "-f :specific ftl file path" + "\n" +
+                "-h :specific html source directory" + "\n" +
+                "-font :specific font which be used to gen pdf" + "\n";
     }
     
     private static String getVersion() {
